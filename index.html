@@ -8,1195 +8,1156 @@
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <style>
     * {
-      box-sizing: border-box;
-    }
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #f5f7fa;
-      margin: 0;
-      padding: 20px;
-      transition: background 0.3s, color 0.3s;
-    }
-    body.dark {
-      background: #1a1a2e;
-      color: #eee;
-    }
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    h1 {
-      color: #1a1a2e;
-      margin: 0;
-      font-size: 1.5rem;
-    }
-    body.dark h1 {
-      color: #fff;
-    }
-    .header-controls {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-    }
-    .toggle-dark {
-      background: #333;
-      color: #fff;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    body.dark .toggle-dark {
-      background: #fff;
-      color: #333;
-    }
-    .controls {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-      background: white;
-      padding: 1rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    body.dark .controls {
-      background: #16213e;
-    }
-    .control-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-    .control-group label {
-      font-size: 12px;
-      font-weight: 600;
-      color: #666;
-      text-transform: uppercase;
-    }
-    body.dark .control-group label {
-      color: #aaa;
-    }
-    select, input[type="date"] {
-      padding: 0.5rem 1rem;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 14px;
-      background: white;
-      cursor: pointer;
-      min-width: 150px;
-    }
-    body.dark select, body.dark input[type="date"] {
-      background: #0f3460;
-      border-color: #0f3460;
-      color: #fff;
-    }
-    select:hover, input[type="date"]:hover {
-      border-color: #4285F4;
-    }
-    .period-custom {
-      display: none;
-      gap: 0.5rem;
-      align-items: center;
-    }
-    .period-custom.visible {
-      display: flex;
-    }
+  box-sizing: border-box;
+}
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f5f7fa;
+  margin: 0;
+  padding: 20px;
+  transition: background 0.3s, color 0.3s;
+}
+body.dark {
+  background: #1a1a2e;
+  color: #eee;
+}
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+h1 {
+  color: #1a1a2e;
+  margin: 0;
+  font-size: 1.5rem;
+}
+body.dark h1 {
+  color: #fff;
+}
+.header-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+.toggle-dark {
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+body.dark .toggle-dark {
+  background: #fff;
+  color: #333;
+}
+.controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+body.dark .controls {
+  background: #16213e;
+}
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.control-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+}
+body.dark .control-group label {
+  color: #aaa;
+}
+select, input[type="date"] {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  min-width: 200px;
+}
+body.dark select, body.dark input[type="date"] {
+  background: #0f3460;
+  border-color: #1f4287;
+  color: #fff;
+}
 
-    /* KPIs */
-    .kpis-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .kpi-card {
-      background: white;
-      border-radius: 12px;
-      padding: 1.25rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    body.dark .kpi-card {
-      background: #16213e;
-    }
-    .kpi-card h3 {
-      margin: 0 0 0.5rem 0;
-      font-size: 12px;
-      font-weight: 600;
-      color: #666;
-      text-transform: uppercase;
-    }
-    body.dark .kpi-card h3 {
-      color: #aaa;
-    }
-    .kpi-value {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: #1a1a2e;
-    }
-    body.dark .kpi-value {
-      color: #fff;
-    }
-    .kpi-comparisons {
-      display: flex;
-      gap: 1rem;
-      margin-top: 0.5rem;
-      flex-wrap: wrap;
-    }
-    .kpi-comparison {
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
-    .kpi-comparison .label {
-      color: #888;
-    }
-    .kpi-comparison .value {
-      font-weight: 600;
-    }
-    .kpi-comparison .value.up {
-      color: #27ae60;
-    }
-    .kpi-comparison .value.down {
-      color: #e74c3c;
-    }
-    .kpi-comparison .value.neutral {
-      color: #888;
-    }
+/* Section titles */
+.section-title {
+  font-size: 1.1rem;
+  color: #1a1a2e;
+  margin: 1.5rem 0 1rem;
+  font-weight: 600;
+}
+body.dark .section-title {
+  color: #fff;
+}
 
-    /* Charts */
-    .section-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #1a1a2e;
-      margin: 2rem 0 1rem 0;
-    }
-    body.dark .section-title {
-      color: #fff;
-    }
-    .charts-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-    .chart-container {
-      background: white;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    body.dark .chart-container {
-      background: #16213e;
-    }
-    .chart-full {
-      grid-column: 1 / -1;
-    }
+/* KPIs */
+.kpis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.kpi-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+body.dark .kpi-card {
+  background: #16213e;
+}
+.kpi-card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+}
+body.dark .kpi-card h3 {
+  color: #aaa;
+}
+.kpi-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+body.dark .kpi-value {
+  color: #fff;
+}
+.kpi-comparisons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+.kpi-comparison {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.kpi-comparison .label {
+  color: #888;
+}
+.kpi-comparison .value {
+  font-weight: 600;
+}
+.kpi-comparison .value.up {
+  color: #27ae60;
+}
+.kpi-comparison .value.down {
+  color: #e74c3c;
+}
+.kpi-comparison .value.neutral {
+  color: #888;
+}
 
-    /* Table */
-    .table-container {
-      background: white;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      overflow-x: auto;
-      margin-bottom: 1.5rem;
-    }
-    body.dark .table-container {
-      background: #16213e;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    th, td {
-      padding: 0.75rem;
-      text-align: left;
-      border-bottom: 1px solid #eee;
-    }
-    body.dark th, body.dark td {
-      border-bottom-color: #333;
-    }
-    th {
-      font-weight: 600;
-      color: #666;
-      font-size: 12px;
-      text-transform: uppercase;
-    }
-    body.dark th {
-      color: #aaa;
-    }
-    tbody tr:hover {
-      background: #f8f9fa;
-    }
-    body.dark tbody tr:hover {
-      background: #1f3a5f;
-    }
+/* Charts */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.chart-container {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+body.dark .chart-container {
+  background: #16213e;
+}
+.chart-full {
+  grid-column: 1 / -1;
+}
 
-    /* Export button */
-    .export-btn {
-      background: #4285F4;
-      color: white;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .export-btn:hover {
-      background: #3367d6;
-    }
+/* Table */
+.table-container {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+}
+body.dark .table-container {
+  background: #16213e;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+th, td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+body.dark th, body.dark td {
+  border-bottom-color: #333;
+}
+th {
+  font-weight: 600;
+  color: #666;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+body.dark th {
+  color: #aaa;
+}
+tbody tr:hover {
+  background: #f8f9fa;
+}
+body.dark tbody tr:hover {
+  background: #1f3a5f;
+}
 
-    /* Loading */
-    .loading {
-      text-align: center;
-      padding: 2rem;
-      color: #888;
-    }
+/* Top Pages Table */
+.top-pages-table {
+  font-size: 13px;
+}
+.top-pages-table .position {
+  font-weight: 700;
+  text-align: center;
+  width: 50px;
+}
+.top-pages-table .evolution {
+  text-align: center;
+  width: 80px;
+}
+.top-pages-table .evolution.up {
+  color: #27ae60;
+}
+.top-pages-table .evolution.down {
+  color: #e74c3c;
+}
+.top-pages-table .evolution.new {
+  color: #3498db;
+  font-weight: 600;
+}
+.top-pages-table .evolution.stable {
+  color: #888;
+}
+.top-pages-table .page-title {
+  max-width: 400px;
+}
+.top-pages-table .page-title a {
+  color: inherit;
+  text-decoration: none;
+}
+.top-pages-table .page-title a:hover {
+  text-decoration: underline;
+  color: #4285F4;
+}
+.top-pages-table .numeric {
+  text-align: right;
+}
+
+/* Export button */
+.export-btn {
+  background: #4285F4;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.export-btn:hover {
+  background: #3367d6;
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #888;
+}
+
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .toggle-dark, .export-btn, .controls {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+  .top-pages-table .page-title {
+    max-width: 200px;
+  }
+}
   </style>
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1>📊 Dashboard Matomo</h1>
-      <div class="header-controls">
-        <button class="export-btn" onclick="exportPDF()">📄 Export PDF</button>
-        <button class="toggle-dark" onclick="toggleDarkMode()">🌙 Mode sombre</button>
-      </div>
-    </header>
-
-    <div class="controls">
-      <div class="control-group">
-        <label>Instance</label>
-        <select id="site-select">
-          <option value="Data FA">France Assureurs</option>
-          <option value="Data AP">Assurance Prévention</option>
-        </select>
-      </div>
-      <div class="control-group">
-        <label>Type d'analyse</label>
-        <select id="analysis-type">
-          <option value="monthly">Analyse mensuelle</option>
-          <option value="trend12">Tendances 12 derniers mois</option>
-          <option value="yearly">Analyse annuelle</option>
-          <option value="custom">Période personnalisée</option>
-        </select>
-      </div>
-      <div class="control-group" id="month-control">
-        <label>Mois</label>
-        <select id="month-select"></select>
-      </div>
-      <div class="control-group" id="year-control" style="display:none;">
-        <label>Année</label>
-        <select id="year-select"></select>
-      </div>
-      <div class="period-custom" id="custom-period">
-        <div class="control-group">
-          <label>Du</label>
-          <input type="date" id="date-start">
-        </div>
-        <div class="control-group">
-          <label>Au</label>
-          <input type="date" id="date-end">
-        </div>
-        <button class="export-btn" onclick="applyCustomPeriod()" style="align-self: flex-end;">Appliquer</button>
-      </div>
+  <header>
+    <h1>📊 Dashboard Matomo</h1>
+    <div class="header-controls">
+      <button class="export-btn" onclick="exportPDF()">📄 Export PDF</button>
+      <button class="toggle-dark" onclick="toggleDarkMode()">🌙 Mode sombre</button>
     </div>
+  </header>
 
-    <div class="loading" id="loading">Chargement des données...</div>
-
-    <div id="dashboard-content" style="display:none;">
-      <!-- KPIs -->
-      <h2 class="section-title">Données principales</h2>
-      <div class="kpis-grid" id="kpis-grid"></div>
-
-      <!-- Graphiques camemberts -->
-      <h2 class="section-title" id="section-repartition">Sources de trafic et devices</h2>
-      <div class="charts-grid">
-        <div class="chart-container">
-          <canvas id="sourcesChart"></canvas>
-        </div>
-        <div class="chart-container">
-          <canvas id="devicesChart"></canvas>
-        </div>
-      </div>
-
-      <!-- Graphique évolution -->
-      <h2 class="section-title">Évolution dans le temps</h2>
-      <div class="charts-grid">
-        <div class="chart-container chart-full">
-          <canvas id="evolutionChart"></canvas>
-        </div>
-      </div>
-
-      <!-- Comparaison N/N-1 (masqué par défaut, visible en analyse annuelle) -->
-      <div id="comparison-section" style="display:none;">
-        <h2 class="section-title" id="section-comparison">Comparaison avec l'année précédente</h2>
-        <div class="charts-grid">
-          <div class="chart-container chart-full">
-            <canvas id="comparisonChart"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tableau -->
-      <h2 class="section-title">Données détaillées</h2>
-      <div class="table-container">
-        <table id="data-table">
-          <thead></thead>
-          <tbody></tbody>
-        </table>
-      </div>
+  <div class="controls">
+    <div class="control-group">
+      <label>Site</label>
+      <select id="site-select">
+        <option value="Data FA">France Assureurs</option>
+        <option value="Data AP">Assurance Prévention</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label>Période</label>
+      <select id="period-select"></select>
     </div>
   </div>
 
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbySR-93iCVyz7cpUyLMHg8BmV3o1WGIo7F22XoelAmfnBp86waZzmkd7CU2cRBMbaVN/exec";
-
-    let allData = null;
-    let sourcesChart = null;
-    let devicesChart = null;
-    let evolutionChart = null;
-    let comparisonChart = null;
-
-    // Palettes de couleurs par site
-    const PALETTES = {
-      "Data FA": {
-        // France Assureurs
-        primary: ["#FA5629", "#007770", "#4984A9", "#68B0AC"],
-        // 80% opacity
-        secondary: ["#FA5629CC", "#007770CC", "#4984A9CC", "#68B0ACCC"],
-        // 60% opacity
-        tertiary: ["#FA562999", "#00777099", "#4984A999", "#68B0AC99"],
-        accent: "#FA5629",
-        dark: "#007770"
-      },
-      "Data AP": {
-        // Assurance Prévention - 12 couleurs directes (pas besoin d'opacité)
-        primary: ["#fdc300", "#005da4", "#00a3bb", "#0587b5"],
-        secondary: ["#0075b2", "#c13401", "#de5534", "#f07d19"],
-        tertiary: ["#b9348b", "#483d8b", "#292e6b", "#7dd5bd"],
-        accent: "#fdc300",
-        dark: "#292e6b"
-      }
-    };
-
-    // Fonction pour obtenir toutes les couleurs (12 au total)
-    function getAllColors(sheetName) {
-      const p = PALETTES[sheetName] || PALETTES["Data FA"];
-      return [...p.primary, ...p.secondary, ...p.tertiary];
-    }
-
-    // Fonction pour obtenir les couleurs des métriques d'évolution
-    function getEvolutionColors(sheetName) {
-      const p = PALETTES[sheetName] || PALETTES["Data FA"];
-      return {
-        visites: p.primary[0],
-        pages_vues: p.primary[1],
-        taux_rebond: p.primary[2],
-        duree: p.primary[3]
-      };
-    }
-
-    document.addEventListener("DOMContentLoaded", async () => {
-      try {
-        const res = await fetch(API_URL);
-        allData = await res.json();
-
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("dashboard-content").style.display = "block";
-
-        initControls();
-        updateDashboard();
-
-        // Event listeners
-        document.getElementById("site-select").addEventListener("change", () => {
-          initControls();
-          updateDashboard();
-        });
-        document.getElementById("analysis-type").addEventListener("change", handleAnalysisTypeChange);
-        document.getElementById("month-select").addEventListener("change", updateDashboard);
-        document.getElementById("year-select").addEventListener("change", updateDashboard);
-
-      } catch (err) {
-        console.error("Erreur de récupération API :", err);
-        document.getElementById("loading").textContent = "Erreur de chargement des données.";
-      }
-    });
-
-    function initControls() {
-      const sheetName = document.getElementById("site-select").value;
-      const rows = getRowsForSheet(sheetName);
-
-      // Populate months
-      const monthSelect = document.getElementById("month-select");
-      const monthsSet = new Set();
-      rows.forEach(row => {
-        const m = String(row.date).match(/^(\d{4})-(\d{2})/);
-        if (m) monthsSet.add(`${m[1]}-${m[2]}`);
-      });
-      const months = Array.from(monthsSet).sort();
-      monthSelect.innerHTML = months.map(ym => {
-        return `<option value="${ym}">${formatMonthYear(ym)}</option>`;
-      }).join("");
-      monthSelect.value = months[months.length - 1];
-
-      // Populate years
-      const yearSelect = document.getElementById("year-select");
-      const yearsSet = new Set();
-      rows.forEach(row => {
-        const m = String(row.date).match(/^(\d{4})/);
-        if (m) yearsSet.add(m[1]);
-      });
-      const years = Array.from(yearsSet).sort();
-      yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join("");
-      yearSelect.value = years[years.length - 1];
-
-      // Set date range defaults
-      if (rows.length > 0) {
-        const dates = rows.map(r => r.date).sort();
-        document.getElementById("date-start").value = dates[0];
-        document.getElementById("date-end").value = dates[dates.length - 1];
-      }
-    }
-
-    function handleAnalysisTypeChange() {
-      const type = document.getElementById("analysis-type").value;
-      document.getElementById("month-control").style.display = type === "monthly" ? "flex" : "none";
-      document.getElementById("year-control").style.display = type === "yearly" ? "flex" : "none";
-      document.getElementById("custom-period").classList.toggle("visible", type === "custom");
-      
-      if (type !== "custom") {
-        updateDashboard();
-      }
-    }
-
-    function applyCustomPeriod() {
-      updateDashboard();
-    }
-
-    function getRowsForSheet(sheetName) {
-      if (!allData?.sheets?.[sheetName]) return [];
-      return allData.sheets[sheetName].rows || [];
-    }
-
-    function getRowForMonth(rows, ym) {
-      return rows.find(row => {
-        const m = String(row.date).match(/^(\d{4})-(\d{2})/);
-        return m && `${m[1]}-${m[2]}` === ym;
-      }) || null;
-    }
-
-    function parseDuration(str) {
-      // "1 min 26 s" -> 86 (seconds)
-      if (!str) return 0;
-      const m = str.match(/(\d+)\s*min\s*(\d+)?\s*s?/);
-      if (m) {
-        return parseInt(m[1]) * 60 + (parseInt(m[2]) || 0);
-      }
-      return 0;
-    }
-
-    function formatDuration(seconds) {
-      const min = Math.floor(seconds / 60);
-      const sec = Math.round(seconds % 60);
-      return `${min} min ${sec} s`;
-    }
-
-    const MOIS_NOMS = [
-      "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
-    ];
-
-    function formatMonthYear(ym) {
-      // "2025-11" -> "Novembre 2025"
-      const m = ym.match(/^(\d{4})-(\d{2})$/);
-      if (!m) return ym;
-      const year = m[1];
-      const monthIndex = parseInt(m[2]) - 1;
-      return `${MOIS_NOMS[monthIndex]} ${year}`;
-    }
-
-    function formatMonthYearShort(ym) {
-      // "2025-11" -> "Nov. 2025"
-      const m = ym.match(/^(\d{4})-(\d{2})$/);
-      if (!m) return ym;
-      const year = m[1];
-      const monthIndex = parseInt(m[2]) - 1;
-      return `${MOIS_NOMS[monthIndex].slice(0, 3)}. ${year}`;
-    }
-
-    function formatPercent(value, showSign = true) {
-      if (value === null || value === undefined || isNaN(value)) return "-";
-      const sign = value > 0 ? "+" : "";
-      return (showSign && value > 0 ? sign : "") + value.toFixed(1) + "%";
-    }
-
-    function formatNumber(n) {
-      return n.toLocaleString("fr-FR");
-    }
-
-    function calcVariation(current, previous) {
-      if (!previous || previous === 0) return null;
-      return ((current - previous) / previous) * 100;
-    }
-
-    // ============ UPDATE DASHBOARD ============
-    function updateDashboard() {
-      const sheetName = document.getElementById("site-select").value;
-      const analysisType = document.getElementById("analysis-type").value;
-      const rows = getRowsForSheet(sheetName);
-
-      if (analysisType === "monthly") {
-        updateMonthlyView(sheetName, rows);
-      } else if (analysisType === "trend12") {
-        updateTrend12View(sheetName, rows);
-      } else if (analysisType === "yearly") {
-        updateYearlyView(sheetName, rows);
-      } else if (analysisType === "custom") {
-        updateCustomView(sheetName, rows);
-      }
-    }
-
-    // ============ MONTHLY VIEW ============
-    function updateMonthlyView(sheetName, rows) {
-      const ym = document.getElementById("month-select").value;
-      const [year, month] = ym.split("-");
-      
-      const currentRow = getRowForMonth(rows, ym);
-      
-      // Mois précédent
-      const prevMonth = parseInt(month) === 1 
-        ? `${parseInt(year) - 1}-12` 
-        : `${year}-${String(parseInt(month) - 1).padStart(2, "0")}`;
-      const prevMonthRow = getRowForMonth(rows, prevMonth);
-      
-      // Même mois année précédente
-      const prevYearMonth = `${parseInt(year) - 1}-${month}`;
-      const prevYearRow = getRowForMonth(rows, prevYearMonth);
-
-      // KPIs
-      renderKPIs(currentRow, prevMonthRow, prevYearRow, "M-1", `${MOIS_NOMS[parseInt(month)-1]} ${parseInt(year)-1}`);
-
-      // Pie charts
-      document.getElementById("section-repartition").textContent = `Sources de trafic et devices – ${formatMonthYear(ym)}`;
-      renderSourcesPie(sheetName, ym, currentRow);
-      renderDevicesPie(sheetName, ym, currentRow);
-
-      // Evolution (12 derniers mois jusqu'au mois sélectionné)
-      const monthIndex = rows.findIndex(r => {
-        const m = String(r.date).match(/^(\d{4})-(\d{2})/);
-        return m && `${m[1]}-${m[2]}` === ym;
-      });
-      const last12 = rows.slice(Math.max(0, monthIndex - 11), monthIndex + 1);
-      renderEvolutionChart(last12, `Évolution sur 12 mois (jusqu'à ${formatMonthYear(ym)})`, sheetName);
-
-      // Masquer la comparaison N/N-1 pour l'analyse mensuelle
-      document.getElementById("comparison-section").style.display = "none";
-
-      // Table
-      renderTable(last12);
-    }
-
-    // ============ TREND 12 MONTHS VIEW ============
-    function updateTrend12View(sheetName, rows) {
-      const last12 = rows.slice(-12);
-      
-      const currentRow = last12[last12.length - 1];
-      const prevMonthRow = last12[last12.length - 2] || null;
-      
-      // Même mois année précédente
-      const currentYm = String(currentRow?.date).match(/^(\d{4})-(\d{2})/);
-      let prevYearRow = null;
-      if (currentYm) {
-        const prevYearYm = `${parseInt(currentYm[1]) - 1}-${currentYm[2]}`;
-        prevYearRow = getRowForMonth(rows, prevYearYm);
-      }
-
-      renderKPIs(currentRow, prevMonthRow, prevYearRow, "M-1", "N-1");
-
-      // Pie charts pour le dernier mois
-      const ym = currentYm ? `${currentYm[1]}-${currentYm[2]}` : "";
-      document.getElementById("section-repartition").textContent = `Sources de trafic et devices – ${formatMonthYear(ym)}`;
-      renderSourcesPie(sheetName, ym, currentRow);
-      renderDevicesPie(sheetName, ym, currentRow);
-
-      renderEvolutionChart(last12, "Tendances des 12 derniers mois", sheetName);
-
-      // Masquer la comparaison N/N-1 pour les tendances 12 mois
-      document.getElementById("comparison-section").style.display = "none";
-
-      renderTable(last12);
-    }
-
-    // ============ YEARLY VIEW ============
-    function updateYearlyView(sheetName, rows) {
-      const year = document.getElementById("year-select").value;
-      const yearRows = rows.filter(r => String(r.date).startsWith(year));
-      const prevYearRows = rows.filter(r => String(r.date).startsWith(String(parseInt(year) - 1)));
-
-      // Aggregate year data
-      const currentAgg = aggregateRows(yearRows);
-      const prevAgg = aggregateRows(prevYearRows);
-
-      renderKPIsFromAgg(currentAgg, prevAgg, `${parseInt(year)-1}`);
-
-      // Pie for full year
-      document.getElementById("section-repartition").textContent = `Sources de trafic et devices – Année ${year}`;
-      renderSourcesPieFromAgg(sheetName, year, currentAgg);
-      renderDevicesPieFromAgg(sheetName, year, currentAgg);
-
-      renderEvolutionChart(yearRows, `Évolution mensuelle - ${year}`, sheetName);
-
-      // Afficher la comparaison N/N-1 pour l'analyse annuelle
-      document.getElementById("comparison-section").style.display = "block";
-      document.getElementById("section-comparison").textContent = `Comparaison ${year} vs ${parseInt(year)-1}`;
-      renderComparisonChart(rows, year, sheetName);
-
-      renderTable(yearRows);
-    }
-
-    // ============ CUSTOM PERIOD VIEW ============
-    function updateCustomView(sheetName, rows) {
-      const startDate = document.getElementById("date-start").value;
-      const endDate = document.getElementById("date-end").value;
-
-      const filteredRows = rows.filter(r => r.date >= startDate && r.date <= endDate);
-
-      if (filteredRows.length === 0) {
-        alert("Aucune donnée pour cette période");
-        return;
-      }
-
-      const currentAgg = aggregateRows(filteredRows);
-
-      // For comparison, try same duration in previous year
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      const duration = end - start;
-      const prevEnd = new Date(start.getTime() - 1);
-      const prevStart = new Date(prevEnd.getTime() - duration);
-      
-      const prevRows = rows.filter(r => {
-        const d = new Date(r.date);
-        return d >= prevStart && d <= prevEnd;
-      });
-      const prevAgg = aggregateRows(prevRows);
-
-      renderKPIsFromAgg(currentAgg, prevAgg, "période préc.");
-
-      document.getElementById("section-repartition").textContent = `Sources de trafic et devices – ${startDate} au ${endDate}`;
-      renderSourcesPieFromAgg(sheetName, `${startDate} - ${endDate}`, currentAgg);
-      renderDevicesPieFromAgg(sheetName, `${startDate} - ${endDate}`, currentAgg);
-
-      renderEvolutionChart(filteredRows, `Évolution - ${startDate} au ${endDate}`, sheetName);
-
-      // Masquer la comparaison pour la période personnalisée
-      document.getElementById("comparison-section").style.display = "none";
-
-      renderTable(filteredRows);
-    }
-
-    function aggregateRows(rows) {
-      if (!rows || rows.length === 0) return null;
-      const agg = {
-        visites: 0,
-        pages_vues: 0,
-        taux_rebond_sum: 0,
-        duree_sum: 0,
-        actions_moy_sum: 0,
-        count: rows.length,
-        moteurs_de_recherche: 0,
-        entrees_directes: 0,
-        sites_externes: 0,
-        reseaux_sociaux: 0,
-        campagnes: 0,
-        ordinateurs: 0,
-        smartphone: 0,
-        tablettes: 0
-      };
-      rows.forEach(r => {
-        agg.visites += Number(r.visites || 0);
-        agg.pages_vues += Number(r.pages_vues || 0);
-        agg.taux_rebond_sum += Number(r.taux_de_rebond || 0);
-        agg.duree_sum += parseDuration(r.duree_moyenne);
-        agg.actions_moy_sum += Number(r.actions_moy || 0);
-        agg.moteurs_de_recherche += Number(r.moteurs_de_recherche || 0);
-        agg.entrees_directes += Number(r.entrees_directes || 0);
-        agg.sites_externes += Number(r.sites_externes || 0);
-        agg.reseaux_sociaux += Number(r.reseaux_sociaux || 0);
-        agg.campagnes += Number(r.campagnes || 0);
-        agg.ordinateurs += Number(r.ordinateurs || 0);
-        agg.smartphone += Number(r.smartphone || 0);
-        agg.tablettes += Number(r.tablettes || 0);
-      });
-      agg.taux_rebond = agg.taux_rebond_sum / agg.count;
-      agg.duree_moyenne = agg.duree_sum / agg.count;
-      agg.actions_moy = agg.actions_moy_sum / agg.count;
-      return agg;
-    }
-
-    // ============ RENDER KPIs ============
-    function renderKPIs(current, prevMonth, prevYear, labelM1, labelN1) {
-      const grid = document.getElementById("kpis-grid");
-      
-      if (!current) {
-        grid.innerHTML = '<div class="kpi-card">Aucune donnée</div>';
-        return;
-      }
-
-      const visites = Number(current.visites || 0);
-      const pagesVues = Number(current.pages_vues || 0);
-      const tauxRebond = Number(current.taux_de_rebond || 0) * 100;
-      const duree = parseDuration(current.duree_moyenne);
-      const actionsMoy = Number(current.actions_moy || 0);
-
-      const visitesM1 = prevMonth ? Number(prevMonth.visites || 0) : null;
-      const visitesN1 = prevYear ? Number(prevYear.visites || 0) : null;
-      const pagesM1 = prevMonth ? Number(prevMonth.pages_vues || 0) : null;
-      const pagesN1 = prevYear ? Number(prevYear.pages_vues || 0) : null;
-      const rebondM1 = prevMonth ? Number(prevMonth.taux_de_rebond || 0) * 100 : null;
-      const rebondN1 = prevYear ? Number(prevYear.taux_de_rebond || 0) * 100 : null;
-      const dureeM1 = prevMonth ? parseDuration(prevMonth.duree_moyenne) : null;
-      const dureeN1 = prevYear ? parseDuration(prevYear.duree_moyenne) : null;
-      const actionsM1 = prevMonth ? Number(prevMonth.actions_moy || 0) : null;
-      const actionsN1 = prevYear ? Number(prevYear.actions_moy || 0) : null;
-
-      grid.innerHTML = `
-        ${renderKPICard("Visites", formatNumber(visites), calcVariation(visites, visitesM1), calcVariation(visites, visitesN1), labelM1, labelN1)}
-        ${renderKPICard("Pages vues", formatNumber(pagesVues), calcVariation(pagesVues, pagesM1), calcVariation(pagesVues, pagesN1), labelM1, labelN1)}
-        ${renderKPICard("Taux de rebond", tauxRebond.toFixed(1) + "%", calcVariation(tauxRebond, rebondM1), calcVariation(tauxRebond, rebondN1), labelM1, labelN1, true)}
-        ${renderKPICard("Durée moyenne", formatDuration(duree), calcVariation(duree, dureeM1), calcVariation(duree, dureeN1), labelM1, labelN1)}
-        ${renderKPICard("Actions moyennes", actionsMoy.toFixed(1), calcVariation(actionsMoy, actionsM1), calcVariation(actionsMoy, actionsN1), labelM1, labelN1)}
-      `;
-    }
-
-    function renderKPIsFromAgg(current, prev, labelPrev) {
-      const grid = document.getElementById("kpis-grid");
-      
-      if (!current) {
-        grid.innerHTML = '<div class="kpi-card">Aucune donnée</div>';
-        return;
-      }
-
-      const visites = current.visites;
-      const pagesVues = current.pages_vues;
-      const tauxRebond = current.taux_rebond * 100;
-      const duree = current.duree_moyenne;
-      const actionsMoy = current.actions_moy;
-
-      const visitesP = prev ? prev.visites : null;
-      const pagesP = prev ? prev.pages_vues : null;
-      const rebondP = prev ? prev.taux_rebond * 100 : null;
-      const dureeP = prev ? prev.duree_moyenne : null;
-      const actionsP = prev ? prev.actions_moy : null;
-
-      grid.innerHTML = `
-        ${renderKPICard("Visites", formatNumber(visites), null, calcVariation(visites, visitesP), "", labelPrev)}
-        ${renderKPICard("Pages vues", formatNumber(pagesVues), null, calcVariation(pagesVues, pagesP), "", labelPrev)}
-        ${renderKPICard("Taux de rebond", tauxRebond.toFixed(1) + "%", null, calcVariation(tauxRebond, rebondP), "", labelPrev, true)}
-        ${renderKPICard("Durée moyenne", formatDuration(duree), null, calcVariation(duree, dureeP), "", labelPrev)}
-        ${renderKPICard("Actions moyennes", actionsMoy.toFixed(1), null, calcVariation(actionsMoy, actionsP), "", labelPrev)}
-      `;
-    }
-
-    function renderKPICard(title, value, varM1, varN1, labelM1, labelN1, invertColors = false) {
-      const getClass = (v) => {
-        if (v === null) return "neutral";
-        if (invertColors) return v > 0 ? "down" : v < 0 ? "up" : "neutral";
-        return v > 0 ? "up" : v < 0 ? "down" : "neutral";
-      };
-
-      return `
-        <div class="kpi-card">
-          <h3>${title}</h3>
-          <div class="kpi-value">${value}</div>
-          <div class="kpi-comparisons">
-            ${labelM1 && varM1 !== null ? `<div class="kpi-comparison">
-              <span class="label">vs ${labelM1}:</span>
-              <span class="value ${getClass(varM1)}">${formatPercent(varM1)}</span>
-            </div>` : ""}
-            ${labelN1 && varN1 !== null ? `<div class="kpi-comparison">
-              <span class="label">vs ${labelN1}:</span>
-              <span class="value ${getClass(varN1)}">${formatPercent(varN1)}</span>
-            </div>` : ""}
-          </div>
+  <div class="loading" id="loading">Chargement des données...</div>
+
+  <div id="dashboard-content" style="display:none;">
+    <!-- KPIs -->
+    <h2 class="section-title">Données principales</h2>
+    <div class="kpis-grid" id="kpis-grid"></div>
+
+    <!-- Graphiques camemberts -->
+    <h2 class="section-title" id="section-repartition">Sources de trafic et devices</h2>
+    <div class="charts-grid">
+      <div class="chart-container">
+        <canvas id="sourcesChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <canvas id="devicesChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Top Pages -->
+    <h2 class="section-title" id="section-top-pages">🏆 Top 10 des pages les plus consultées</h2>
+    <div class="table-container">
+      <table id="top-pages-table" class="top-pages-table">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Graphique évolution -->
+    <h2 class="section-title">Évolution dans le temps</h2>
+    <div class="charts-grid">
+      <div class="chart-container chart-full">
+        <canvas id="evolutionChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Comparaison N/N-1 -->
+    <div id="comparison-section" style="display:none;">
+      <h2 class="section-title" id="section-comparison">Comparaison avec l'année précédente</h2>
+      <div class="charts-grid">
+        <div class="chart-container chart-full">
+          <canvas id="comparisonChart"></canvas>
         </div>
-      `;
-    }
+      </div>
+    </div>
+  </div>
+</div>
 
-    // ============ PIE CHARTS ============
-    function renderSourcesPie(sheetName, ym, row) {
-      const ctx = document.getElementById("sourcesChart").getContext("2d");
-      if (sourcesChart) sourcesChart.destroy();
+  <script>
+    // ============ CONFIGURATION ============
+const API_URL = "https://script.google.com/macros/s/AKfycbzs5S-NuzbuRIx-PIR-QvZ6cf2j-YYvyYfVDTdL0upNwswgw4kzr75Q_wWB4TF2njcF/exec";
 
-      if (!row) {
-        sourcesChart = new Chart(ctx, { type: "pie", data: { labels: [], datasets: [] } });
-        return;
+let allData = null;
+let sourcesChart = null;
+let devicesChart = null;
+let evolutionChart = null;
+let comparisonChart = null;
+
+// Palettes de couleurs par site
+const PALETTES = {
+  "Data FA": {
+    primary: ["#FA5629", "#007770", "#4984A9", "#68B0AC"],
+    secondary: ["#FA5629CC", "#007770CC", "#4984A9CC", "#68B0ACCC"],
+    tertiary: ["#FA562999", "#00777099", "#4984A999", "#68B0AC99"],
+    accent: "#FA5629",
+    dark: "#007770"
+  },
+  "Data AP": {
+    primary: ["#fdc300", "#005da4", "#00a3bb", "#0587b5"],
+    secondary: ["#0075b2", "#c13401", "#de5534", "#f07d19"],
+    tertiary: ["#b9348b", "#483d8b", "#292e6b", "#7dd5bd"],
+    accent: "#fdc300",
+    dark: "#292e6b"
+  }
+};
+
+function getAllColors(sheetName) {
+  const p = PALETTES[sheetName] || PALETTES["Data FA"];
+  return [...p.primary, ...p.secondary, ...p.tertiary];
+}
+
+function getEvolutionColors(sheetName) {
+  const p = PALETTES[sheetName] || PALETTES["Data FA"];
+  return {
+    visites: p.primary[0],
+    pages_vues: p.primary[1],
+    taux_rebond: p.primary[2],
+    duree: p.primary[3]
+  };
+}
+
+// Couleur pour le graphique de comparaison (vert/bleu selon le site)
+function getComparisonColors(sheetName) {
+  const p = PALETTES[sheetName] || PALETTES["Data FA"];
+  // Utiliser le vert (index 1) pour FA, bleu (index 1) pour AP
+  const baseColor = p.primary[1]; // #007770 pour FA, #005da4 pour AP
+  return {
+    current: baseColor,           // 100% opacité
+    previous: baseColor + "99"    // 60% opacité (99 en hex ≈ 60%)
+  };
+}
+
+// ============ INITIALISATION ============
+async function initDashboard() {
+  try {
+    const res = await fetch(API_URL);
+    allData = await res.json();
+
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("dashboard-content").style.display = "block";
+
+    initPeriodSelector();
+    updateDashboard();
+
+    // Event listeners
+    document.getElementById("site-select").addEventListener("change", () => {
+      initPeriodSelector();
+      updateDashboard();
+    });
+    document.getElementById("period-select").addEventListener("change", updateDashboard);
+
+  } catch (err) {
+    console.error("Erreur de récupération API :", err);
+    document.getElementById("loading").textContent = "Erreur de chargement des données.";
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initDashboard);
+} else {
+  initDashboard();
+}
+
+function initPeriodSelector() {
+  const sheetName = document.getElementById("site-select").value;
+  const rows = getRowsForSheet(sheetName);
+  const periodSelect = document.getElementById("period-select");
+
+  // Collecter les années et mois disponibles
+  const yearMonths = {};
+  rows.forEach(row => {
+    const m = String(row.date).match(/^(\d{4})-(\d{2})/);
+    if (m) {
+      const year = m[1];
+      const month = m[2];
+      if (!yearMonths[year]) yearMonths[year] = [];
+      if (!yearMonths[year].includes(month)) {
+        yearMonths[year].push(month);
       }
-
-      const siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
-      const m = ym.match(/^(\d{4})-(\d{2})$/);
-      const monthLabel = m ? `${m[2]}/${m[1]}` : ym;
-
-      const data = [
-        Number(row.moteurs_de_recherche || 0),
-        Number(row.entrees_directes || 0),
-        Number(row.sites_externes || 0),
-        Number(row.reseaux_sociaux || 0),
-        Number(row.campagnes || 0)
-      ];
-
-      sourcesChart = new Chart(ctx, {
-        type: "pie",
-        plugins: [ChartDataLabels],
-        data: {
-          labels: ["Moteurs de recherche", "Entrées directes", "Sites externes", "Réseaux sociaux", "Campagnes"],
-          datasets: [{ data, backgroundColor: getAllColors(sheetName).slice(0, 5), borderWidth: 2, borderColor: "#fff" }]
-        },
-        options: getPieOptions(`Sources de trafic – ${siteLabel} – ${monthLabel}`)
-      });
     }
+  });
 
-    function renderSourcesPieFromAgg(sheetName, label, agg) {
-      const ctx = document.getElementById("sourcesChart").getContext("2d");
-      if (sourcesChart) sourcesChart.destroy();
+  // Trier les années décroissantes et les mois décroissants (antéchronologique)
+  const years = Object.keys(yearMonths).sort().reverse();
+  years.forEach(year => {
+    yearMonths[year].sort().reverse();
+  });
 
-      if (!agg) {
-        sourcesChart = new Chart(ctx, { type: "pie", data: { labels: [], datasets: [] } });
-        return;
-      }
+  // Construire les options avec structure hiérarchique
+  let options = '';
+  years.forEach(year => {
+    // Option pour l'année entière
+    options += `<option value="year-${year}">${year}</option>`;
+    // Options pour chaque mois (indentées avec tiret cadratin)
+    yearMonths[year].forEach(month => {
+      const monthName = MOIS_NOMS[parseInt(month) - 1];
+      options += `<option value="month-${year}-${month}">— ${monthName}</option>`;
+    });
+  });
 
-      const siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
+  periodSelect.innerHTML = options;
+  
+  // Sélectionner le dernier mois disponible par défaut (premier de la liste triée décroissante)
+  if (years.length > 0) {
+    const lastYear = years[0];
+    const lastMonth = yearMonths[lastYear][0];
+    periodSelect.value = `month-${lastYear}-${lastMonth}`;
+  }
+}
 
-      const data = [agg.moteurs_de_recherche, agg.entrees_directes, agg.sites_externes, agg.reseaux_sociaux, agg.campagnes];
+// ============ DATA ACCESS ============
+function getRowsForSheet(sheetName) {
+  if (!allData?.sheets?.[sheetName]) return [];
+  return allData.sheets[sheetName].rows || [];
+}
 
-      sourcesChart = new Chart(ctx, {
-        type: "pie",
-        plugins: [ChartDataLabels],
-        data: {
-          labels: ["Moteurs de recherche", "Entrées directes", "Sites externes", "Réseaux sociaux", "Campagnes"],
-          datasets: [{ data, backgroundColor: getAllColors(sheetName).slice(0, 5), borderWidth: 2, borderColor: "#fff" }]
-        },
-        options: getPieOptions(`Sources de trafic – ${siteLabel} – ${label}`)
-      });
-    }
+function getTopPagesForSite(siteName) {
+  if (!allData?.sheets?.["Top Pages"]) return [];
+  const allTopPages = allData.sheets["Top Pages"].rows || [];
+  return allTopPages.filter(row => row.site === siteName);
+}
 
-    function renderDevicesPie(sheetName, ym, row) {
-      const ctx = document.getElementById("devicesChart").getContext("2d");
-      if (devicesChart) devicesChart.destroy();
+function getRowForMonth(rows, ym) {
+  return rows.find(row => {
+    const m = String(row.date).match(/^(\d{4})-(\d{2})/);
+    return m && `${m[1]}-${m[2]}` === ym;
+  }) || null;
+}
 
-      if (!row) {
-        devicesChart = new Chart(ctx, { type: "pie", data: { labels: [], datasets: [] } });
-        return;
-      }
+// ============ UTILITIES ============
+function parseDuration(str) {
+  if (!str) return 0;
+  const m = str.match(/(\d+)\s*min\s*(\d+)?\s*s?/);
+  if (m) {
+    return parseInt(m[1]) * 60 + (parseInt(m[2]) || 0);
+  }
+  return 0;
+}
 
-      const siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
-      const m = ym.match(/^(\d{4})-(\d{2})$/);
-      const monthLabel = m ? `${m[2]}/${m[1]}` : ym;
+function formatDuration(seconds) {
+  const min = Math.floor(seconds / 60);
+  const sec = Math.round(seconds % 60);
+  return `${min} min ${sec} s`;
+}
 
-      const data = [
-        Number(row.ordinateurs || 0),
-        Number(row.smartphone || 0),
-        Number(row.tablettes || 0)
-      ];
+const MOIS_NOMS = [
+  "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+  "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+];
 
-      const colors = PALETTES[sheetName]?.primary || PALETTES["Data FA"].primary;
+function formatMonthYear(ym) {
+  const m = ym.match(/^(\d{4})-(\d{2})$/);
+  if (!m) return ym;
+  const year = m[1];
+  const monthIndex = parseInt(m[2]) - 1;
+  return `${MOIS_NOMS[monthIndex]} ${year}`;
+}
 
-      devicesChart = new Chart(ctx, {
-        type: "pie",
-        plugins: [ChartDataLabels],
-        data: {
-          labels: ["Ordinateurs", "Smartphones", "Tablettes"],
-          datasets: [{ data, backgroundColor: [colors[0], colors[1], colors[2]], borderWidth: 2, borderColor: "#fff" }]
-        },
-        options: getPieOptions(`Périphériques – ${siteLabel} – ${monthLabel}`)
-      });
-    }
+function formatPercent(value, showSign = true) {
+  if (value === null || value === undefined || isNaN(value)) return "-";
+  const sign = value > 0 ? "+" : "";
+  return (showSign && value > 0 ? sign : "") + value.toFixed(1) + "%";
+}
 
-    function renderDevicesPieFromAgg(sheetName, label, agg) {
-      const ctx = document.getElementById("devicesChart").getContext("2d");
-      if (devicesChart) devicesChart.destroy();
+function formatNumber(n) {
+  return n.toLocaleString("fr-FR");
+}
 
-      if (!agg) {
-        devicesChart = new Chart(ctx, { type: "pie", data: { labels: [], datasets: [] } });
-        return;
-      }
+function calcVariation(current, previous) {
+  if (!previous || previous === 0) return null;
+  return ((current - previous) / previous) * 100;
+}
 
-      const siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
+// ============ UPDATE DASHBOARD ============
+function updateDashboard() {
+  const sheetName = document.getElementById("site-select").value;
+  const periodValue = document.getElementById("period-select").value;
+  const rows = getRowsForSheet(sheetName);
 
-      const data = [agg.ordinateurs, agg.smartphone, agg.tablettes];
+  // Parser la valeur de période
+  if (periodValue.startsWith("year-")) {
+    const year = periodValue.replace("year-", "");
+    updateYearlyView(sheetName, rows, year);
+  } else if (periodValue.startsWith("month-")) {
+    const parts = periodValue.replace("month-", "").split("-");
+    const ym = `${parts[0]}-${parts[1]}`;
+    updateMonthlyView(sheetName, rows, ym);
+  }
+}
 
-      const colors = PALETTES[sheetName]?.primary || PALETTES["Data FA"].primary;
+// ============ MONTHLY VIEW ============
+function updateMonthlyView(sheetName, rows, ym) {
+  const [year, month] = ym.split("-");
+  
+  const currentRow = getRowForMonth(rows, ym);
+  
+  const prevMonth = parseInt(month) === 1 
+    ? `${parseInt(year) - 1}-12` 
+    : `${year}-${String(parseInt(month) - 1).padStart(2, "0")}`;
+  const prevMonthRow = getRowForMonth(rows, prevMonth);
+  
+  const prevYearMonth = `${parseInt(year) - 1}-${month}`;
+  const prevYearRow = getRowForMonth(rows, prevYearMonth);
 
-      devicesChart = new Chart(ctx, {
-        type: "pie",
-        plugins: [ChartDataLabels],
-        data: {
-          labels: ["Ordinateurs", "Smartphones", "Tablettes"],
-          datasets: [{ data, backgroundColor: [colors[0], colors[1], colors[2]], borderWidth: 2, borderColor: "#fff" }]
-        },
-        options: getPieOptions(`Périphériques – ${siteLabel} – ${label}`)
-      });
-    }
+  renderKPIs(currentRow, prevMonthRow, prevYearRow, "M-1", `${MOIS_NOMS[parseInt(month)-1]} ${parseInt(year)-1}`);
 
-    function getPieOptions(title) {
-      return {
-        responsive: true,
-        plugins: {
-          datalabels: {
-            color: "#fff",
-            font: { weight: "bold", size: 13 },
-            formatter: (value, ctx) => {
-              const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-              if (total === 0 || value === 0) return "";
-              const pct = (value / total) * 100;
-              return pct >= 5 ? pct.toFixed(1) + "%" : "";
-            }
-          },
-          title: { display: true, text: title, font: { size: 14, weight: "bold" } },
-          legend: { position: "bottom" },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => {
-                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                const pct = total > 0 ? (ctx.parsed / total) * 100 : 0;
-                return ` ${ctx.label} : ${formatNumber(ctx.parsed)} (${pct.toFixed(1)}%)`;
-              }
-            }
+  document.getElementById("section-repartition").textContent = `Sources de trafic et devices – ${formatMonthYear(ym)}`;
+  renderSourcesPie(sheetName, ym, currentRow);
+  renderDevicesPie(sheetName, ym, currentRow);
+
+  // Top Pages pour le mois sélectionné
+  updateTopPages(sheetName, ym);
+
+  const monthIndex = rows.findIndex(r => {
+    const m = String(r.date).match(/^(\d{4})-(\d{2})/);
+    return m && `${m[1]}-${m[2]}` === ym;
+  });
+  const last12 = rows.slice(Math.max(0, monthIndex - 11), monthIndex + 1);
+  renderEvolutionChart(last12, `Évolution sur 12 mois (jusqu'à ${formatMonthYear(ym)})`, sheetName);
+
+  document.getElementById("comparison-section").style.display = "none";
+}
+
+// ============ YEARLY VIEW ============
+function updateYearlyView(sheetName, rows, year) {
+  const yearRows = rows.filter(r => String(r.date).startsWith(year));
+  const prevYearRows = rows.filter(r => String(r.date).startsWith(String(parseInt(year) - 1)));
+
+  const currentAgg = aggregateRows(yearRows);
+  const prevAgg = aggregateRows(prevYearRows);
+
+  renderKPIsFromAgg(currentAgg, prevAgg, `${parseInt(year)-1}`);
+
+  document.getElementById("section-repartition").textContent = `Sources de trafic et devices – Année ${year}`;
+  renderSourcesPieFromAgg(sheetName, year, currentAgg);
+  renderDevicesPieFromAgg(sheetName, year, currentAgg);
+
+  // Top Pages pour l'année (date = année seule dans le gsheet)
+  updateTopPages(sheetName, year);
+
+  renderEvolutionChart(yearRows, `Évolution mensuelle - ${year}`, sheetName);
+
+  document.getElementById("comparison-section").style.display = "block";
+  document.getElementById("section-comparison").textContent = `Comparaison ${year} vs ${parseInt(year)-1}`;
+  renderComparisonChart(rows, year, sheetName);
+}
+
+function aggregateRows(rows) {
+  if (!rows || rows.length === 0) return null;
+  const agg = {
+    visites: 0,
+    pages_vues: 0,
+    taux_rebond_sum: 0,
+    duree_sum: 0,
+    actions_moy_sum: 0,
+    count: rows.length,
+    moteurs_de_recherche: 0,
+    entrees_directes: 0,
+    sites_externes: 0,
+    reseaux_sociaux: 0,
+    campagnes: 0,
+    ordinateurs: 0,
+    smartphone: 0,
+    tablettes: 0
+  };
+  rows.forEach(r => {
+    agg.visites += Number(r.visites || 0);
+    agg.pages_vues += Number(r.pages_vues || 0);
+    agg.taux_rebond_sum += Number(r.taux_de_rebond || 0);
+    agg.duree_sum += parseDuration(r.duree_moyenne);
+    agg.actions_moy_sum += Number(r.actions_moy || 0);
+    agg.moteurs_de_recherche += Number(r.moteurs_de_recherche || 0);
+    agg.entrees_directes += Number(r.entrees_directes || 0);
+    agg.sites_externes += Number(r.sites_externes || 0);
+    agg.reseaux_sociaux += Number(r.reseaux_sociaux || 0);
+    agg.campagnes += Number(r.campagnes || 0);
+    agg.ordinateurs += Number(r.ordinateurs || 0);
+    agg.smartphone += Number(r.smartphone || 0);
+    agg.tablettes += Number(r.tablettes || 0);
+  });
+  agg.taux_rebond = agg.taux_rebond_sum / agg.count;
+  agg.duree_moyenne = agg.duree_sum / agg.count;
+  agg.actions_moy = agg.actions_moy_sum / agg.count;
+  return agg;
+}
+
+// ============ RENDER KPIs ============
+function renderKPIs(current, prevMonth, prevYear, labelM1, labelN1) {
+  const grid = document.getElementById("kpis-grid");
+  
+  if (!current) {
+    grid.innerHTML = '<div class="kpi-card">Aucune donnée</div>';
+    return;
+  }
+
+  const visites = Number(current.visites || 0);
+  const pagesVues = Number(current.pages_vues || 0);
+  const tauxRebond = Number(current.taux_de_rebond || 0) * 100;
+  const duree = parseDuration(current.duree_moyenne);
+  const actionsMoy = Number(current.actions_moy || 0);
+
+  const visitesM1 = prevMonth ? Number(prevMonth.visites || 0) : null;
+  const visitesN1 = prevYear ? Number(prevYear.visites || 0) : null;
+  const pagesM1 = prevMonth ? Number(prevMonth.pages_vues || 0) : null;
+  const pagesN1 = prevYear ? Number(prevYear.pages_vues || 0) : null;
+  const rebondM1 = prevMonth ? Number(prevMonth.taux_de_rebond || 0) * 100 : null;
+  const rebondN1 = prevYear ? Number(prevYear.taux_de_rebond || 0) * 100 : null;
+  const dureeM1 = prevMonth ? parseDuration(prevMonth.duree_moyenne) : null;
+  const dureeN1 = prevYear ? parseDuration(prevYear.duree_moyenne) : null;
+  const actionsM1 = prevMonth ? Number(prevMonth.actions_moy || 0) : null;
+  const actionsN1 = prevYear ? Number(prevYear.actions_moy || 0) : null;
+
+  grid.innerHTML = `
+    ${renderKPICard("Visites", formatNumber(visites), calcVariation(visites, visitesM1), calcVariation(visites, visitesN1), labelM1, labelN1)}
+    ${renderKPICard("Pages vues", formatNumber(pagesVues), calcVariation(pagesVues, pagesM1), calcVariation(pagesVues, pagesN1), labelM1, labelN1)}
+    ${renderKPICard("Taux de rebond", tauxRebond.toFixed(1) + "%", calcVariation(tauxRebond, rebondM1), calcVariation(tauxRebond, rebondN1), labelM1, labelN1, true)}
+    ${renderKPICard("Durée moyenne", formatDuration(duree), calcVariation(duree, dureeM1), calcVariation(duree, dureeN1), labelM1, labelN1)}
+    ${renderKPICard("Actions moyennes", actionsMoy.toFixed(1), calcVariation(actionsMoy, actionsM1), calcVariation(actionsMoy, actionsN1), labelM1, labelN1)}
+  `;
+}
+
+function renderKPIsFromAgg(current, prev, labelPrev) {
+  const grid = document.getElementById("kpis-grid");
+  
+  if (!current) {
+    grid.innerHTML = '<div class="kpi-card">Aucune donnée</div>';
+    return;
+  }
+
+  const visites = current.visites;
+  const pagesVues = current.pages_vues;
+  const tauxRebond = current.taux_rebond * 100;
+  const duree = current.duree_moyenne;
+  const actionsMoy = current.actions_moy;
+
+  const visitesP = prev ? prev.visites : null;
+  const pagesP = prev ? prev.pages_vues : null;
+  const rebondP = prev ? prev.taux_rebond * 100 : null;
+  const dureeP = prev ? prev.duree_moyenne : null;
+  const actionsP = prev ? prev.actions_moy : null;
+
+  grid.innerHTML = `
+    ${renderKPICard("Visites", formatNumber(visites), null, calcVariation(visites, visitesP), "", labelPrev)}
+    ${renderKPICard("Pages vues", formatNumber(pagesVues), null, calcVariation(pagesVues, pagesP), "", labelPrev)}
+    ${renderKPICard("Taux de rebond", tauxRebond.toFixed(1) + "%", null, calcVariation(tauxRebond, rebondP), "", labelPrev, true)}
+    ${renderKPICard("Durée moyenne", formatDuration(duree), null, calcVariation(duree, dureeP), "", labelPrev)}
+    ${renderKPICard("Actions moyennes", actionsMoy.toFixed(1), null, calcVariation(actionsMoy, actionsP), "", labelPrev)}
+  `;
+}
+
+function renderKPICard(title, value, varM1, varN1, labelM1, labelN1, invertColors = false) {
+  const getClass = (v) => {
+    if (v === null) return "neutral";
+    if (invertColors) return v > 0 ? "down" : v < 0 ? "up" : "neutral";
+    return v > 0 ? "up" : v < 0 ? "down" : "neutral";
+  };
+
+  return `
+    <div class="kpi-card">
+      <h3>${title}</h3>
+      <div class="kpi-value">${value}</div>
+      <div class="kpi-comparisons">
+        ${labelM1 && varM1 !== null ? `<div class="kpi-comparison">
+          <span class="label">vs ${labelM1}:</span>
+          <span class="value ${getClass(varM1)}">${formatPercent(varM1)}</span>
+        </div>` : ""}
+        ${labelN1 && varN1 !== null ? `<div class="kpi-comparison">
+          <span class="label">vs ${labelN1}:</span>
+          <span class="value ${getClass(varN1)}">${formatPercent(varN1)}</span>
+        </div>` : ""}
+      </div>
+    </div>
+  `;
+}
+
+// ============ PIE CHARTS ============
+function renderSourcesPie(sheetName, ym, row) {
+  const ctx = document.getElementById("sourcesChart").getContext("2d");
+  if (sourcesChart) sourcesChart.destroy();
+
+  if (!row) {
+    sourcesChart = new Chart(ctx, { type: "pie", data: { labels: [], datasets: [] } });
+    return;
+  }
+
+  const siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
+  const m = ym.match(/^(\d{4})-(\d{2})$/);
+  const monthLabel = m ? `${m[2]}/${m[1]}` : ym;
+
+  const data = [
+    Number(row.moteurs_de_recherche || 0),
+    Number(row.entrees_directes || 0),
+    Number(row.sites_externes || 0),
+    Number(row.reseaux_sociaux || 0),
+    Number(row.campagnes || 0)
+  ];
+
+  sourcesChart = new Chart(ctx, {
+    type: "pie",
+    plugins: [ChartDataLabels],
+    data: {
+      labels: ["Moteurs de recherche", "Entrées directes", "Sites externes", "Réseaux sociaux", "Campagnes"],
+      datasets: [{ data, backgroundColor: getAllColors(sheetName).slice(0, 5), borderWidth: 2, borderColor: "#fff" }]
+    },
+    options: getPieOptions(`Sources de trafic – ${siteLabel} – ${monthLabel}`)
+  });
+}
+
+function renderSourcesPieFromAgg(sheetName, label, agg) {
+  const ctx = document.getElementById("sourcesChart").getContext("2d");
+  if (sourcesChart) sourcesChart.destroy();
+
+  if (!agg) {
+    sourcesChart = new Chart(ctx, { type: "pie", data: { labels: [], datasets: [] } });
+    return;
+  }
+
+  const siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
+  const data = [agg.moteurs_de_recherche, agg.entrees_directes, agg.sites_externes, agg.reseaux_sociaux, agg.campagnes];
+
+  sourcesChart = new Chart(ctx, {
+    type: "pie",
+    plugins: [ChartDataLabels],
+    data: {
+      labels: ["Moteurs de recherche", "Entrées directes", "Sites externes", "Réseaux sociaux", "Campagnes"],
+      datasets: [{ data, backgroundColor: getAllColors(sheetName).slice(0, 5), borderWidth: 2, borderColor: "#fff" }]
+    },
+    options: getPieOptions(`Sources de trafic – ${siteLabel} – ${label}`)
+  });
+}
+
+function renderDevicesPie(sheetName, ym, row) {
+  const ctx = document.getElementById("devicesChart").getContext("2d");
+  if (devicesChart) devicesChart.destroy();
+
+  if (!row) {
+    devicesChart = new Chart(ctx, { type: "pie", data: { labels: [], datasets: [] } });
+    return;
+  }
+
+  const siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
+  const m = ym.match(/^(\d{4})-(\d{2})$/);
+  const monthLabel = m ? `${m[2]}/${m[1]}` : ym;
+
+  const data = [
+    Number(row.ordinateurs || 0),
+    Number(row.smartphone || 0),
+    Number(row.tablettes || 0)
+  ];
+
+  const colors = PALETTES[sheetName]?.primary || PALETTES["Data FA"].primary;
+
+  devicesChart = new Chart(ctx, {
+    type: "pie",
+    plugins: [ChartDataLabels],
+    data: {
+      labels: ["Ordinateurs", "Smartphones", "Tablettes"],
+      datasets: [{ data, backgroundColor: [colors[0], colors[1], colors[2]], borderWidth: 2, borderColor: "#fff" }]
+    },
+    options: getPieOptions(`Périphériques – ${siteLabel} – ${monthLabel}`)
+  });
+}
+
+function renderDevicesPieFromAgg(sheetName, label, agg) {
+  const ctx = document.getElementById("devicesChart").getContext("2d");
+  if (devicesChart) devicesChart.destroy();
+
+  if (!agg) {
+    devicesChart = new Chart(ctx, { type: "pie", data: { labels: [], datasets: [] } });
+    return;
+  }
+
+  const siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
+  const data = [agg.ordinateurs, agg.smartphone, agg.tablettes];
+  const colors = PALETTES[sheetName]?.primary || PALETTES["Data FA"].primary;
+
+  devicesChart = new Chart(ctx, {
+    type: "pie",
+    plugins: [ChartDataLabels],
+    data: {
+      labels: ["Ordinateurs", "Smartphones", "Tablettes"],
+      datasets: [{ data, backgroundColor: [colors[0], colors[1], colors[2]], borderWidth: 2, borderColor: "#fff" }]
+    },
+    options: getPieOptions(`Périphériques – ${siteLabel} – ${label}`)
+  });
+}
+
+function getPieOptions(title) {
+  return {
+    responsive: true,
+    plugins: {
+      datalabels: {
+        color: "#fff",
+        font: { weight: "bold", size: 13 },
+        formatter: (value, ctx) => {
+          const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+          if (total === 0 || value === 0) return "";
+          const pct = (value / total) * 100;
+          return pct >= 5 ? pct.toFixed(1) + "%" : "";
+        }
+      },
+      title: { display: true, text: title, font: { size: 14, weight: "bold" } },
+      legend: { position: "bottom" },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => {
+            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+            const pct = total > 0 ? (ctx.parsed / total) * 100 : 0;
+            return ` ${ctx.label} : ${formatNumber(ctx.parsed)} (${pct.toFixed(1)}%)`;
           }
         }
-      };
+      }
     }
+  };
+}
 
-    // ============ EVOLUTION CHART ============
-    function renderEvolutionChart(rows, title, sheetName) {
-      const ctx = document.getElementById("evolutionChart").getContext("2d");
-      if (evolutionChart) evolutionChart.destroy();
+// ============ EVOLUTION CHART ============
+function renderEvolutionChart(rows, title, sheetName) {
+  const ctx = document.getElementById("evolutionChart").getContext("2d");
+  if (evolutionChart) evolutionChart.destroy();
 
-      const COLORS = getEvolutionColors(sheetName || document.getElementById("site-select").value);
+  const COLORS = getEvolutionColors(sheetName || document.getElementById("site-select").value);
 
-      const labels = rows.map(r => {
-        const m = String(r.date).match(/^(\d{4})-(\d{2})/);
-        return m ? `${m[2]}/${m[1]}` : r.date;
-      });
+  const labels = rows.map(r => {
+    const m = String(r.date).match(/^(\d{4})-(\d{2})/);
+    return m ? `${m[2]}/${m[1]}` : r.date;
+  });
 
-      evolutionChart = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels,
-          datasets: [
-            {
-              label: "Visites",
-              data: rows.map(r => Number(r.visites || 0)),
-              borderColor: COLORS.visites,
-              backgroundColor: COLORS.visites + "20",
-              yAxisID: "y",
-              tension: 0.3
-            },
-            {
-              label: "Pages vues",
-              data: rows.map(r => Number(r.pages_vues || 0)),
-              borderColor: COLORS.pages_vues,
-              backgroundColor: COLORS.pages_vues + "20",
-              yAxisID: "y",
-              tension: 0.3
-            },
-            {
-              label: "Taux de rebond (%)",
-              data: rows.map(r => Number(r.taux_de_rebond || 0) * 100),
-              borderColor: COLORS.taux_rebond,
-              backgroundColor: COLORS.taux_rebond + "20",
-              yAxisID: "y1",
-              tension: 0.3
-            },
-            {
-              label: "Durée (sec)",
-              data: rows.map(r => parseDuration(r.duree_moyenne)),
-              borderColor: COLORS.duree,
-              backgroundColor: COLORS.duree + "20",
-              yAxisID: "y1",
-              tension: 0.3
-            }
-          ]
+  evolutionChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Visites",
+          data: rows.map(r => Number(r.visites || 0)),
+          borderColor: COLORS.visites,
+          backgroundColor: COLORS.visites + "20",
+          yAxisID: "y",
+          tension: 0.3
         },
-        options: {
-          responsive: true,
-          interaction: { mode: "index", intersect: false },
-          plugins: {
-            title: { display: true, text: title, font: { size: 14, weight: "bold" } },
-            legend: { position: "bottom" }
-          },
-          scales: {
-            y: {
-              type: "linear",
-              position: "left",
-              title: { display: true, text: "Visites / Pages vues" }
-            },
-            y1: {
-              type: "linear",
-              position: "right",
-              title: { display: true, text: "Taux rebond (%) / Durée (s)" },
-              grid: { drawOnChartArea: false }
-            }
-          }
-        }
-      });
-    }
-
-    // ============ COMPARISON CHART N vs N-1 ============
-    function renderComparisonChart(rows, year, sheetName) {
-      const ctx = document.getElementById("comparisonChart").getContext("2d");
-      if (comparisonChart) comparisonChart.destroy();
-
-      const palette = PALETTES[sheetName || document.getElementById("site-select").value] || PALETTES["Data FA"];
-
-      const prevYear = String(parseInt(year) - 1);
-      const months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
-      const labels = months.map(m => m + "/" + year.slice(2));
-
-      const currentData = months.map(m => {
-        const row = getRowForMonth(rows, `${year}-${m}`);
-        return row ? Number(row.visites || 0) : 0;
-      });
-
-      const prevData = months.map(m => {
-        const row = getRowForMonth(rows, `${prevYear}-${m}`);
-        return row ? Number(row.visites || 0) : 0;
-      });
-
-      comparisonChart = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels,
-          datasets: [
-            {
-              label: year,
-              data: currentData,
-              backgroundColor: palette.primary[0]
-            },
-            {
-              label: prevYear,
-              data: prevData,
-              backgroundColor: palette.secondary[0]
-            }
-          ]
+        {
+          label: "Pages vues",
+          data: rows.map(r => Number(r.pages_vues || 0)),
+          borderColor: COLORS.pages_vues,
+          backgroundColor: COLORS.pages_vues + "20",
+          yAxisID: "y",
+          tension: 0.3
         },
-        options: {
-          responsive: true,
-          plugins: {
-            title: { display: true, text: `Visites mensuelles : ${year} vs ${prevYear}`, font: { size: 14, weight: "bold" } },
-            legend: { position: "bottom" }
-          },
-          scales: {
-            y: { beginAtZero: true }
-          }
-        }
-      });
-    }
-
-    function renderCustomComparisonChart(currentRows, prevRows, sheetName) {
-      const ctx = document.getElementById("comparisonChart").getContext("2d");
-      if (comparisonChart) comparisonChart.destroy();
-
-      const palette = PALETTES[sheetName || document.getElementById("site-select").value] || PALETTES["Data FA"];
-
-      const currentAgg = aggregateRows(currentRows);
-      const prevAgg = aggregateRows(prevRows);
-
-      comparisonChart = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: ["Visites", "Pages vues"],
-          datasets: [
-            {
-              label: "Période sélectionnée",
-              data: [currentAgg?.visites || 0, currentAgg?.pages_vues || 0],
-              backgroundColor: palette.primary[0]
-            },
-            {
-              label: "Période précédente",
-              data: [prevAgg?.visites || 0, prevAgg?.pages_vues || 0],
-              backgroundColor: palette.secondary[0]
-            }
-          ]
+        {
+          label: "Taux de rebond (%)",
+          data: rows.map(r => Number(r.taux_de_rebond || 0) * 100),
+          borderColor: COLORS.taux_rebond,
+          backgroundColor: COLORS.taux_rebond + "20",
+          yAxisID: "y1",
+          tension: 0.3
         },
-        options: {
-          responsive: true,
-          plugins: {
-            title: { display: true, text: "Comparaison avec la période précédente", font: { size: 14, weight: "bold" } },
-            legend: { position: "bottom" }
-          }
+        {
+          label: "Durée (sec)",
+          data: rows.map(r => parseDuration(r.duree_moyenne)),
+          borderColor: COLORS.duree,
+          backgroundColor: COLORS.duree + "20",
+          yAxisID: "y1",
+          tension: 0.3
         }
-      });
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        title: { display: true, text: title, font: { size: 14, weight: "bold" } },
+        legend: { position: "bottom" }
+      },
+      scales: {
+        y: {
+          type: "linear",
+          position: "left",
+          title: { display: true, text: "Visites / Pages vues" }
+        },
+        y1: {
+          type: "linear",
+          position: "right",
+          title: { display: true, text: "Taux rebond (%) / Durée (s)" },
+          grid: { drawOnChartArea: false }
+        }
+      }
     }
+  });
+}
 
-    // ============ TABLE ============
-    function renderTable(rows) {
-      const thead = document.querySelector("#data-table thead");
-      const tbody = document.querySelector("#data-table tbody");
+// ============ COMPARISON CHART ============
+function renderComparisonChart(rows, year, sheetName) {
+  const ctx = document.getElementById("comparisonChart").getContext("2d");
+  if (comparisonChart) comparisonChart.destroy();
 
-      thead.innerHTML = `
-        <tr>
-          <th>Date</th>
-          <th>Visites</th>
-          <th>Pages vues</th>
-          <th>Taux rebond</th>
-          <th>Durée moy.</th>
-          <th>Moteurs</th>
-          <th>Direct</th>
-          <th>Externes</th>
-          <th>Social</th>
-          <th>Campagnes</th>
-        </tr>
-      `;
+  const colors = getComparisonColors(sheetName || document.getElementById("site-select").value);
 
-      tbody.innerHTML = rows.map(r => {
-        const m = String(r.date).match(/^(\d{4})-(\d{2})/);
-        const dateLabel = m ? `${m[2]}/${m[1]}` : r.date;
-        return `
-          <tr>
-            <td>${dateLabel}</td>
-            <td>${formatNumber(r.visites || 0)}</td>
-            <td>${formatNumber(r.pages_vues || 0)}</td>
-            <td>${((r.taux_de_rebond || 0) * 100).toFixed(1)}%</td>
-            <td>${r.duree_moyenne || "-"}</td>
-            <td>${formatNumber(r.moteurs_de_recherche || 0)}</td>
-            <td>${formatNumber(r.entrees_directes || 0)}</td>
-            <td>${formatNumber(r.sites_externes || 0)}</td>
-            <td>${formatNumber(r.reseaux_sociaux || 0)}</td>
-            <td>${formatNumber(r.campagnes || 0)}</td>
-          </tr>
-        `;
-      }).join("");
+  const prevYear = String(parseInt(year) - 1);
+  const months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
+  const labels = MOIS_NOMS;
+
+  const currentData = months.map(m => {
+    const row = getRowForMonth(rows, `${year}-${m}`);
+    return row ? Number(row.visites || 0) : 0;
+  });
+
+  const prevData = months.map(m => {
+    const row = getRowForMonth(rows, `${prevYear}-${m}`);
+    return row ? Number(row.visites || 0) : 0;
+  });
+
+  comparisonChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: year,
+          data: currentData,
+          backgroundColor: colors.current
+        },
+        {
+          label: prevYear,
+          data: prevData,
+          backgroundColor: colors.previous
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: { display: true, text: `Visites mensuelles : ${year} vs ${prevYear}`, font: { size: 14, weight: "bold" } },
+        legend: { position: "bottom" }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
     }
+  });
+}
 
-    // ============ DARK MODE ============
-    function toggleDarkMode() {
-      document.body.classList.toggle("dark");
-      const btn = document.querySelector(".toggle-dark");
-      btn.textContent = document.body.classList.contains("dark") ? "☀️ Mode clair" : "🌙 Mode sombre";
-    }
+// ============ TOP PAGES ============
+function updateTopPages(sheetName, period) {
+  const topPages = getTopPagesForSite(sheetName);
+  
+  // Filtrer selon la période (mois YYYY-MM ou année YYYY)
+  const isYear = period.length === 4;
+  
+  let filtered;
+  if (isYear) {
+    // Pour une année, chercher les entrées où date = "2024" (année seule)
+    filtered = topPages.filter(row => String(row.date) === period);
+  } else {
+    // Pour un mois, chercher les entrées où date commence par YYYY-MM
+    filtered = topPages.filter(row => {
+      const m = String(row.date).match(/^(\d{4})-(\d{2})/);
+      return m && `${m[1]}-${m[2]}` === period;
+    });
+  }
+  
+  // Trier par position et limiter à 10
+  filtered = filtered.sort((a, b) => a.position - b.position).slice(0, 10);
+  
+  const thead = document.querySelector("#top-pages-table thead");
+  const tbody = document.querySelector("#top-pages-table tbody");
+  
+  if (filtered.length === 0) {
+    thead.innerHTML = "";
+    tbody.innerHTML = "<tr><td colspan='7' style='text-align:center;color:#888;'>Aucune donnée Top Pages pour cette période</td></tr>";
+    return;
+  }
+  
+  // Mettre à jour le titre de la section
+  const periodLabel = isYear ? `Année ${period}` : formatMonthYear(period);
+  document.getElementById("section-top-pages").textContent = `🏆 Top 10 des pages les plus consultées – ${periodLabel}`;
+  
+  thead.innerHTML = `
+    <tr>
+      <th class="position">#</th>
+      <th class="evolution">Évol.</th>
+      <th class="page-title">Page</th>
+      <th class="numeric">Vues</th>
+      <th class="numeric">% Trafic</th>
+      <th class="numeric">Taux rebond</th>
+      <th class="numeric">Temps moy.</th>
+    </tr>
+  `;
+  
+  tbody.innerHTML = filtered.map(row => {
+    const evolutionClass = getEvolutionClass(row.evolution);
+    const evolutionLabel = getEvolutionLabel(row.evolution);
+    
+    return `
+      <tr>
+        <td class="position">${row.position}</td>
+        <td class="evolution ${evolutionClass}">${evolutionLabel}</td>
+        <td class="page-title">
+          <a href="${row.url}" target="_blank" title="${row.titre_page}">${truncateText(row.titre_page, 60)}</a>
+        </td>
+        <td class="numeric">${formatNumber(row.vues)}</td>
+        <td class="numeric">${(row.pct_trafic * 100).toFixed(2)}%</td>
+        <td class="numeric">${(row.taux_rebond * 100).toFixed(1)}%</td>
+        <td class="numeric">${row.temps_moyen}</td>
+      </tr>
+    `;
+  }).join("");
+}
 
-    // ============ EXPORT PDF ============
-    function exportPDF() {
-      window.print();
-    }
+function getEvolutionClass(evolution) {
+  if (evolution === "new") return "new";
+  if (evolution === "stable" || evolution === "=") return "stable";
+  const num = parseInt(evolution);
+  if (num > 0) return "up";
+  if (num < 0) return "down";
+  return "stable";
+}
+
+function getEvolutionLabel(evolution) {
+  if (evolution === "new") return "🆕 New";
+  if (evolution === "stable" || evolution === "=") return "= Stable";
+  const num = parseInt(evolution);
+  if (num > 0) return `↑ +${num}`;
+  if (num < 0) return `↓ ${num}`;
+  return "-";
+}
+
+function truncateText(text, maxLength) {
+  if (!text) return "";
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + "...";
+}
+
+// ============ DARK MODE ============
+function toggleDarkMode() {
+  document.body.classList.toggle("dark");
+  const btn = document.querySelector(".toggle-dark");
+  btn.textContent = document.body.classList.contains("dark") ? "☀️ Mode clair" : "🌙 Mode sombre";
+}
+
+// ============ EXPORT PDF ============
+function exportPDF() {
+  window.print();
+}
   </script>
 </body>
 </html>

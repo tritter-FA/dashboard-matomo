@@ -71,32 +71,19 @@ function parseHash() {
   const hash = window.location.hash.replace('#', '');
   if (!hash) return null;
   
-  // Format avec site : FA-2025 ou FA-2025-02
-  const matchWithSite = hash.match(/^(FA|AP)-(\d{4})(?:-(\d{2}))?$/);
-  if (matchWithSite) {
-    const siteCode = matchWithSite[1];
-    const year = matchWithSite[2];
-    const month = matchWithSite[3];
-    
-    return {
-      site: SITE_CODES[siteCode],
-      type: month ? 'month' : 'year',
-      value: month ? `${year}-${month}` : year
-    };
-  }
+  // Format obligatoire avec site : FA-2025 ou FA-2025-02
+  const match = hash.match(/^(FA|AP)-(\d{4})(?:-(\d{2}))?$/);
+  if (!match) return null;
   
-  // Format sans site (rétrocompatibilité) : 2025 ou 2025-02
-  const matchYear = hash.match(/^(\d{4})$/);
-  if (matchYear) {
-    return { site: null, type: 'year', value: matchYear[1] };
-  }
+  const siteCode = match[1];
+  const year = match[2];
+  const month = match[3];
   
-  const matchMonth = hash.match(/^(\d{4})-(\d{2})$/);
-  if (matchMonth) {
-    return { site: null, type: 'month', value: `${matchMonth[1]}-${matchMonth[2]}` };
-  }
-  
-  return null;
+  return {
+    site: SITE_CODES[siteCode],
+    type: month ? 'month' : 'year',
+    value: month ? `${year}-${month}` : year
+  };
 }
 
 function updateHash() {
@@ -125,18 +112,13 @@ function applyHashToSelectors() {
   const siteSelect = document.getElementById("site-select");
   const periodSelect = document.getElementById("period-select");
   
-  let applied = false;
+  // Appliquer le site (toujours présent dans le hash)
+  const siteOptionExists = Array.from(siteSelect.options).some(opt => opt.value === parsed.site);
+  if (!siteOptionExists) return false;
   
-  // Appliquer le site si spécifié
-  if (parsed.site) {
-    const siteOptionExists = Array.from(siteSelect.options).some(opt => opt.value === parsed.site);
-    if (siteOptionExists) {
-      siteSelect.value = parsed.site;
-      // Réinitialiser le sélecteur de période pour ce site
-      initPeriodSelector();
-      applied = true;
-    }
-  }
+  siteSelect.value = parsed.site;
+  // Réinitialiser le sélecteur de période pour ce site
+  initPeriodSelector();
   
   // Appliquer la période
   let targetValue = '';
@@ -149,11 +131,14 @@ function applyHashToSelectors() {
   const periodOptionExists = Array.from(periodSelect.options).some(opt => opt.value === targetValue);
   if (periodOptionExists) {
     periodSelect.value = targetValue;
-    applied = true;
+    return true;
   }
   
-  return applied;
+  // Si la période n'existe pas, on garde le site mais période par défaut
+  return true;
 }
+
+console.log("Parsed hash:", parsed);
 
 // ============ INITIALISATION ============
 async function initDashboard() {

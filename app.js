@@ -316,6 +316,9 @@ function updateDashboard() {
   var periodValue = document.getElementById("period-select").value;
   var rows = getRowsForSheet(sheetName);
 
+  // Mettre à jour le titre pour l'impression
+  updatePrintTitle(sheetName, periodValue);
+
   if (periodValue.indexOf("year-") === 0) {
     var year = periodValue.replace("year-", "");
     updateYearlyView(sheetName, rows, year);
@@ -324,6 +327,28 @@ function updateDashboard() {
     var ym = parts[0] + "-" + parts[1];
     updateMonthlyView(sheetName, rows, ym);
   }
+}
+
+function updatePrintTitle(sheetName, periodValue) {
+  var siteName = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
+  var periodLabel = '';
+  
+  if (periodValue.indexOf("year-") === 0) {
+    periodLabel = periodValue.replace("year-", "");
+  } else if (periodValue.indexOf("month-") === 0) {
+    var parts = periodValue.replace("month-", "").split("-");
+    var monthIndex = parseInt(parts[1]) - 1;
+    periodLabel = MOIS_NOMS[monthIndex] + ' ' + parts[0];
+  }
+  
+  // Mettre à jour le span dans le h1
+  var printPeriod = document.getElementById("print-period");
+  if (printPeriod) {
+    printPeriod.textContent = ' — ' + siteName + ' — ' + periodLabel;
+  }
+  
+  // Mettre à jour le titre de la page
+  document.title = 'Dashboard Matomo - ' + siteName + ' - ' + periodLabel;
 }
 
 // ============ MONTHLY VIEW ============

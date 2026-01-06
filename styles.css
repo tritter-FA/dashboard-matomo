@@ -37,6 +37,11 @@ h1 {
   font-size: 1.5rem;
 }
 
+/* Période dans le titre - masqué à l'écran */
+#print-period {
+  display: none;
+}
+
 body.dark h1 {
   color: #fff;
 }
@@ -353,15 +358,185 @@ body.dark tbody tr:hover {
 
 /* ============ PRINT ============ */
 @media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+  
   body {
     background: white !important;
     color: black !important;
+    padding: 0 !important;
+    font-size: 11px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
   
+  .container {
+    max-width: 100% !important;
+  }
+  
+  /* Masquer les éléments non imprimables */
   .toggle-dark,
   .export-btn,
-  .controls {
+  .controls,
+  .header-controls {
     display: none !important;
+  }
+  
+  /* Header avec titre dynamique */
+  header {
+    margin-bottom: 10px !important;
+    page-break-after: avoid;
+  }
+  
+  h1 {
+    font-size: 18px !important;
+  }
+  
+  /* Afficher la période dans le titre à l'impression */
+  #print-period {
+    display: inline !important;
+  }
+  
+  /* Section titles */
+  .section-title {
+    font-size: 14px !important;
+    margin: 10px 0 8px !important;
+    page-break-after: avoid;
+  }
+  
+  /* ===== PAGE 1 : KPIs + Graphiques camemberts ===== */
+  .kpis-grid {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+    page-break-after: avoid;
+  }
+  
+  .kpi-card {
+    padding: 8px !important;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+  
+  .kpi-card h3 {
+    font-size: 9px !important;
+    margin-bottom: 4px !important;
+  }
+  
+  .kpi-value {
+    font-size: 16px !important;
+  }
+  
+  .kpi-comparisons {
+    margin-top: 4px !important;
+  }
+  
+  .kpi-comparison {
+    font-size: 9px !important;
+  }
+  
+  /* Graphiques camemberts côte à côte sur page 1 */
+  .charts-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+    margin-bottom: 10px !important;
+  }
+  
+  .chart-container {
+    padding: 10px !important;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    height: auto !important;
+    max-height: 280px !important;
+  }
+  
+  .chart-container canvas {
+    max-height: 250px !important;
+  }
+  
+  /* Forcer le saut de page après les camemberts (avant Top Pages) */
+  #section-repartition + .charts-grid {
+    page-break-after: always;
+  }
+  
+  /* ===== PAGE 2 : Top Pages ===== */
+  #section-top-pages {
+    page-break-before: always;
+  }
+  
+  .table-container {
+    padding: 10px !important;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    page-break-after: always;
+    page-break-inside: avoid;
+  }
+  
+  .top-pages-table {
+    font-size: 10px !important;
+  }
+  
+  .top-pages-table th,
+  .top-pages-table td {
+    padding: 4px 6px !important;
+  }
+  
+  .top-pages-table .position {
+    width: 30px !important;
+  }
+  
+  .top-pages-table .evolution {
+    width: 60px !important;
+  }
+  
+  .top-pages-table .page-title {
+    max-width: 350px !important;
+  }
+  
+  /* ===== PAGE 3 : Évolution ===== */
+  .chart-full {
+    grid-column: 1 / -1 !important;
+    max-height: 400px !important;
+  }
+  
+  /* Le graphique évolution prend toute la page */
+  #evolutionChart {
+    max-height: 380px !important;
+  }
+  
+  /* Saut de page après évolution */
+  .chart-full:has(#evolutionChart) {
+    page-break-after: always;
+  }
+  
+  /* Fallback pour navigateurs sans :has() */
+  #dashboard-content > .charts-grid:nth-of-type(2) {
+    page-break-after: always;
+  }
+  
+  /* ===== PAGE 4 : Comparaison (annuel uniquement) ===== */
+  #comparison-section {
+    page-break-before: always;
+  }
+  
+  #comparison-section .chart-container {
+    max-height: 450px !important;
+    width: 100% !important;
+  }
+  
+  #comparisonChart {
+    max-height: 420px !important;
+    width: 100% !important;
+  }
+  
+  /* Éviter les coupures de page à l'intérieur des éléments */
+  .chart-container,
+  .kpi-card {
+    page-break-inside: avoid;
   }
 }
 

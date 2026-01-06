@@ -7,6 +7,17 @@ let devicesChart = null;
 let evolutionChart = null;
 let comparisonChart = null;
 
+// Mapping des codes hash vers les noms de sheets
+const SITE_CODES = {
+  "FA": "Data FA",
+  "AP": "Data AP"
+};
+
+const SITE_CODES_REVERSE = {
+  "Data FA": "FA",
+  "Data AP": "AP"
+};
+
 // Palettes de couleurs par site
 const PALETTES = {
   "Data FA": {
@@ -60,55 +71,88 @@ function parseHash() {
   const hash = window.location.hash.replace('#', '');
   if (!hash) return null;
   
-  // Format année : #2025
-  if (/^\d{4}$/.test(hash)) {
-    return { type: 'year', value: hash };
+  // Format avec site : FA-2025 ou FA-2025-02
+  const matchWithSite = hash.match(/^(FA|AP)-(\d{4})(?:-(\d{2}))?$/);
+  if (matchWithSite) {
+    const siteCode = matchWithSite[1];
+    const year = matchWithSite[2];
+    const month = matchWithSite[3];
+    
+    return {
+      site: SITE_CODES[siteCode],
+      type: month ? 'month' : 'year',
+      value: month ? `${year}-${month}` : year
+    };
   }
   
-  // Format mois : #2025-02
-  if (/^\d{4}-\d{2}$/.test(hash)) {
-    return { type: 'month', value: hash };
+  // Format sans site (rétrocompatibilité) : 2025 ou 2025-02
+  const matchYear = hash.match(/^(\d{4})$/);
+  if (matchYear) {
+    return { site: null, type: 'year', value: matchYear[1] };
+  }
+  
+  const matchMonth = hash.match(/^(\d{4})-(\d{2})$/);
+  if (matchMonth) {
+    return { site: null, type: 'month', value: `${matchMonth[1]}-${matchMonth[2]}` };
   }
   
   return null;
 }
 
-function updateHash(periodValue) {
-  let hash = '';
+function updateHash() {
+  const siteSelect = document.getElementById("site-select");
+  const periodSelect = document.getElementById("period-select");
   
+  const siteCode = SITE_CODES_REVERSE[siteSelect.value] || "FA";
+  const periodValue = periodSelect.value;
+  
+  let periodHash = '';
   if (periodValue.startsWith('year-')) {
-    hash = periodValue.replace('year-', '');
+    periodHash = periodValue.replace('year-', '');
   } else if (periodValue.startsWith('month-')) {
-    hash = periodValue.replace('month-', '');
+    periodHash = periodValue.replace('month-', '');
   }
   
-  if (hash) {
-    history.replaceState(null, null, '#' + hash);
+  if (periodHash) {
+    history.replaceState(null, null, '#' + siteCode + '-' + periodHash);
   }
 }
 
-function applyHashToPeriodSelector() {
+function applyHashToSelectors() {
   const parsed = parseHash();
   if (!parsed) return false;
   
+  const siteSelect = document.getElementById("site-select");
   const periodSelect = document.getElementById("period-select");
-  let targetValue = '';
   
+  let applied = false;
+  
+  // Appliquer le site si spécifié
+  if (parsed.site) {
+    const siteOptionExists = Array.from(siteSelect.options).some(opt => opt.value === parsed.site);
+    if (siteOptionExists) {
+      siteSelect.value = parsed.site;
+      // Réinitialiser le sélecteur de période pour ce site
+      initPeriodSelector();
+      applied = true;
+    }
+  }
+  
+  // Appliquer la période
+  let targetValue = '';
   if (parsed.type === 'year') {
     targetValue = `year-${parsed.value}`;
   } else if (parsed.type === 'month') {
     targetValue = `month-${parsed.value}`;
   }
   
-  // Vérifier si l'option existe
-  const optionExists = Array.from(periodSelect.options).some(opt => opt.value === targetValue);
-  
-  if (optionExists) {
+  const periodOptionExists = Array.from(periodSelect.options).some(opt => opt.value === targetValue);
+  if (periodOptionExists) {
     periodSelect.value = targetValue;
-    return true;
+    applied = true;
   }
   
-  return false;
+  return applied;
 }
 
 // ============ INITIALISATION ============
@@ -120,29 +164,32 @@ async function initDashboard() {
     document.getElementById("loading").style.display = "none";
     document.getElementById("dashboard-content").style.display = "block";
 
+    // Initialiser le sélecteur de période avec le site par défaut
     initPeriodSelector();
     
-    // Appliquer le hash si présent, sinon garder la sélection par défaut
-    applyHashToPeriodSelector();
+    // Appliquer le hash APRÈS que les données soient chargées et les selects remplis
+    applyHashToSelectors();
+    
+    // Mettre à jour le hash initial (pour normaliser l'URL)
+    updateHash();
     
     updateDashboard();
 
     // Event listeners
     document.getElementById("site-select").addEventListener("change", () => {
       initPeriodSelector();
-      applyHashToPeriodSelector();
+      updateHash();
       updateDashboard();
     });
     
     document.getElementById("period-select").addEventListener("change", () => {
-      const periodValue = document.getElementById("period-select").value;
-      updateHash(periodValue);
+      updateHash();
       updateDashboard();
     });
     
     // Écouter les changements de hash (bouton retour/avant du navigateur)
     window.addEventListener("hashchange", () => {
-      if (applyHashToPeriodSelector()) {
+      if (applyHashToSelectors()) {
         updateDashboard();
       }
     });

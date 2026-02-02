@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Matomo - France Assureurs</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📊 Dashboard Matomo<span id="print-period"></span></h1>
+      <div class="header-controls">
+        <button class="refresh-btn" onclick="refreshData()" title="Forcer le rechargement des données">🔄</button>
+        <button class="export-btn" onclick="exportPDF()">📄 Export PDF</button>
+        <button class="toggle-dark" onclick="toggleDarkMode()">🌙 Mode sombre</button>
+      </div>
+    </header>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>Site</label>
+        <select id="site-select">
+          <option value="Data FA">France Assureurs</option>
+          <option value="Data AP">Assurance Prévention</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>Période</label>
+        <select id="period-select"></select>
+      </div>
+    </div>
+
+    <div class="loading" id="loading">Chargement des données...</div>
+
+    <div id="dashboard-content" style="display:none;">
+      <!-- KPIs -->
+      <h2 class="section-title">Données principales</h2>
+      <div class="kpis-grid" id="kpis-grid"></div>
+
+      <!-- Graphiques camemberts -->
+      <h2 class="section-title" id="section-repartition">Sources de trafic et devices</h2>
+      <div class="charts-grid">
+        <div class="chart-container">
+          <canvas id="sourcesChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <canvas id="devicesChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Top Pages -->
+      <h2 class="section-title" id="section-top-pages">🏆 Top 10 des pages les plus consultées</h2>
+      <div class="table-container">
+        <table id="top-pages-table" class="top-pages-table">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <!-- Graphique évolution -->
+      <h2 class="section-title">Évolution dans le temps</h2>
+      <div class="charts-grid">
+        <div class="chart-container chart-full">
+          <canvas id="evolutionChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Comparaison N/N-1 -->
+      <div id="comparison-section" style="display:none;">
+        <h2 class="section-title" id="section-comparison">Comparaison avec l'année précédente</h2>
+        <div class="charts-grid">
+          <div class="chart-container chart-full">
+            <canvas id="comparisonChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

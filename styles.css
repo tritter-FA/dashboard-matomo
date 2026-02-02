@@ -1,0 +1,577 @@
+/* ============ RESET & BASE ============ */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f5f7fa;
+  margin: 0;
+  padding: 20px;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+  background: #1a1a2e;
+  color: #eee;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ============ HEADER ============ */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+h1 {
+  color: #1a1a2e;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+/* Période dans le titre - masqué à l'écran */
+#print-period {
+  display: none;
+}
+
+body.dark h1 {
+  color: #fff;
+}
+
+.header-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.toggle-dark {
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+body.dark .toggle-dark {
+  background: #fff;
+  color: #333;
+}
+
+/* ============ CONTROLS ============ */
+.controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+body.dark .controls {
+  background: #16213e;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.control-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+}
+
+body.dark .control-group label {
+  color: #aaa;
+}
+
+select,
+input[type="date"] {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  min-width: 200px;
+}
+
+body.dark select,
+body.dark input[type="date"] {
+  background: #0f3460;
+  border-color: #1f4287;
+  color: #fff;
+}
+
+/* ============ SECTION TITLES ============ */
+.section-title {
+  font-size: 1.1rem;
+  color: #1a1a2e;
+  margin: 1.5rem 0 1rem;
+  font-weight: 600;
+}
+
+body.dark .section-title {
+  color: #fff;
+}
+
+/* ============ KPIs ============ */
+.kpis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.kpi-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+body.dark .kpi-card {
+  background: #16213e;
+}
+
+.kpi-card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+}
+
+body.dark .kpi-card h3 {
+  color: #aaa;
+}
+
+.kpi-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+body.dark .kpi-value {
+  color: #fff;
+}
+
+.kpi-comparisons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.kpi-comparison {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.kpi-comparison .label {
+  color: #888;
+}
+
+.kpi-comparison .value {
+  font-weight: 600;
+}
+
+.kpi-comparison .value.up {
+  color: #27ae60;
+}
+
+.kpi-comparison .value.down {
+  color: #e74c3c;
+}
+
+.kpi-comparison .value.neutral {
+  color: #888;
+}
+
+/* ============ CHARTS ============ */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.chart-container {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+body.dark .chart-container {
+  background: #16213e;
+}
+
+.chart-full {
+  grid-column: 1 / -1;
+}
+
+/* ============ TABLE ============ */
+.table-container {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+}
+
+body.dark .table-container {
+  background: #16213e;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th,
+td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+body.dark th,
+body.dark td {
+  border-bottom-color: #333;
+}
+
+th {
+  font-weight: 600;
+  color: #666;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+body.dark th {
+  color: #aaa;
+}
+
+tbody tr:hover {
+  background: #f8f9fa;
+}
+
+body.dark tbody tr:hover {
+  background: #1f3a5f;
+}
+
+/* ============ TOP PAGES TABLE ============ */
+.top-pages-table {
+  font-size: 13px;
+}
+
+.top-pages-table .position {
+  font-weight: 700;
+  text-align: center;
+  width: 50px;
+}
+
+.top-pages-table .evolution {
+  text-align: center;
+  width: 80px;
+}
+
+.top-pages-table .evolution.up {
+  color: #27ae60;
+}
+
+.top-pages-table .evolution.down {
+  color: #e74c3c;
+}
+
+.top-pages-table .evolution.new {
+  color: #3498db;
+  font-weight: 600;
+}
+
+.top-pages-table .evolution.stable {
+  color: #888;
+}
+
+.top-pages-table .page-title {
+  max-width: 400px;
+}
+
+.top-pages-table .page-title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.top-pages-table .page-title a:hover {
+  text-decoration: underline;
+  color: #4285F4;
+}
+
+.top-pages-table .numeric {
+  text-align: right;
+}
+
+/* ============ BUTTONS ============ */
+.refresh-btn {
+  background: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.refresh-btn:hover {
+  background: #e0e0e0;
+}
+
+body.dark .refresh-btn {
+  background: #333;
+  color: #fff;
+  border-color: #555;
+}
+
+body.dark .refresh-btn:hover {
+  background: #444;
+}
+
+.export-btn {
+  background: #4285F4;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.export-btn:hover {
+  background: #3367d6;
+}
+
+/* ============ LOADING ============ */
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #888;
+}
+
+/* ============ PRINT ============ */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+    padding: 0 !important;
+    font-size: 11px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  .container {
+    max-width: 100% !important;
+  }
+  
+  /* Masquer les éléments non imprimables */
+  .toggle-dark,
+  .export-btn,
+  .refresh-btn,
+  .controls,
+  .header-controls {
+    display: none !important;
+  }
+  
+  /* Header avec titre dynamique */
+  header {
+    margin-bottom: 10px !important;
+    page-break-after: avoid;
+  }
+  
+  h1 {
+    font-size: 18px !important;
+  }
+  
+  /* Afficher la période dans le titre à l'impression */
+  #print-period {
+    display: inline !important;
+  }
+  
+  /* Section titles */
+  .section-title {
+    font-size: 14px !important;
+    margin: 10px 0 8px !important;
+    page-break-after: avoid;
+  }
+  
+  /* ===== PAGE 1 : KPIs + Graphiques camemberts ===== */
+  .kpis-grid {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+    page-break-after: avoid;
+  }
+  
+  .kpi-card {
+    padding: 8px !important;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+  
+  .kpi-card h3 {
+    font-size: 9px !important;
+    margin-bottom: 4px !important;
+  }
+  
+  .kpi-value {
+    font-size: 16px !important;
+  }
+  
+  .kpi-comparisons {
+    margin-top: 4px !important;
+  }
+  
+  .kpi-comparison {
+    font-size: 9px !important;
+  }
+  
+  /* Graphiques camemberts côte à côte sur page 1 */
+  .charts-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+    margin-bottom: 10px !important;
+  }
+  
+  .chart-container {
+    padding: 10px !important;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    height: auto !important;
+    max-height: 280px !important;
+  }
+  
+  .chart-container canvas {
+    max-height: 250px !important;
+  }
+  
+  /* Forcer le saut de page après les camemberts (avant Top Pages) */
+  #section-repartition + .charts-grid {
+    page-break-after: always;
+  }
+  
+  /* ===== PAGE 2 : Top Pages ===== */
+  #section-top-pages {
+    page-break-before: always;
+  }
+  
+  .table-container {
+    padding: 10px !important;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    page-break-after: always;
+    page-break-inside: avoid;
+  }
+  
+  .top-pages-table {
+    font-size: 10px !important;
+  }
+  
+  .top-pages-table th,
+  .top-pages-table td {
+    padding: 4px 6px !important;
+  }
+  
+  .top-pages-table .position {
+    width: 30px !important;
+  }
+  
+  .top-pages-table .evolution {
+    width: 60px !important;
+  }
+  
+  .top-pages-table .page-title {
+    max-width: 350px !important;
+  }
+  
+  /* ===== PAGE 3 : Évolution ===== */
+  .chart-full {
+    grid-column: 1 / -1 !important;
+    max-height: 400px !important;
+  }
+  
+  /* Le graphique évolution prend toute la page */
+  #evolutionChart {
+    max-height: 380px !important;
+  }
+  
+  /* Saut de page après évolution */
+  .chart-full:has(#evolutionChart) {
+    page-break-after: always;
+  }
+  
+  /* Fallback pour navigateurs sans :has() */
+  #dashboard-content > .charts-grid:nth-of-type(2) {
+    page-break-after: always;
+  }
+  
+  /* ===== PAGE 4 : Comparaison (annuel uniquement) ===== */
+  #comparison-section {
+    page-break-before: always;
+  }
+  
+  #comparison-section .chart-container {
+    max-height: 450px !important;
+    width: 100% !important;
+  }
+  
+  #comparisonChart {
+    max-height: 420px !important;
+    width: 100% !important;
+  }
+  
+  /* Éviter les coupures de page à l'intérieur des éléments */
+  .chart-container,
+  .kpi-card {
+    page-break-inside: avoid;
+  }
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 768px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .top-pages-table .page-title {
+    max-width: 200px;
+  }
+}

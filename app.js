@@ -23,14 +23,14 @@ const SITE_CODES_REVERSE = {
 // Palettes de couleurs par site
 const PALETTES = {
   "Data FA": {
-    primary: ["#FA5629", "#007770", "#4984A9", "#68B0AC", "#FFB347", "#77DD77", "#A181E0"],
+    primary: ["#FA5629", "#007770", "#4984A9", "#68B0AC"],
     secondary: ["#FA5629CC", "#007770CC", "#4984A9CC", "#68B0ACCC"],
     tertiary: ["#FA562999", "#00777099", "#4984A999", "#68B0AC99"],
     accent: "#FA5629",
     dark: "#007770"
   },
   "Data AP": {
-    primary: ["#fdc300", "#005da4", "#00a3bb", "#0587b5", "#f07d19", "#292e6b", "#8bc34a"],
+    primary: ["#fdc300", "#005da4", "#00a3bb", "#0587b5"],
     secondary: ["#0075b2", "#c13401", "#de5534", "#f07d19"],
     tertiary: ["#b9348b", "#483d8b", "#292e6b", "#7dd5bd"],
     accent: "#fdc300",
@@ -73,6 +73,7 @@ function parseHash() {
   var hash = window.location.hash.replace('#', '');
   if (!hash) return null;
   
+  // Format obligatoire : FA-2025 ou FA-2025-02 ou AP-2025 ou AP-2025-12
   var match = hash.match(/^(FA|AP)-(\d{4})(?:-(\d{2}))?$/);
   if (!match) return null;
   
@@ -113,6 +114,7 @@ function applyHashToSelectors() {
   var siteSelect = document.getElementById("site-select");
   var periodSelect = document.getElementById("period-select");
   
+  // Vérifier que le site existe
   var siteExists = false;
   for (var i = 0; i < siteSelect.options.length; i++) {
     if (siteSelect.options[i].value === parsed.site) {
@@ -122,9 +124,11 @@ function applyHashToSelectors() {
   }
   if (!siteExists) return false;
   
+  // Appliquer le site
   siteSelect.value = parsed.site;
   initPeriodSelector();
   
+  // Construire la valeur de période à chercher
   var targetValue = '';
   if (parsed.type === 'year') {
     targetValue = 'year-' + parsed.value;
@@ -132,6 +136,7 @@ function applyHashToSelectors() {
     targetValue = 'month-' + parsed.value;
   }
   
+  // Vérifier que la période existe
   var periodExists = false;
   for (var j = 0; j < periodSelect.options.length; j++) {
     if (periodSelect.options[j].value === targetValue) {
@@ -158,6 +163,7 @@ function getCachedData() {
     var cachedMonth = localStorage.getItem(CACHE_MONTH_KEY);
     var currentMonth = getCurrentMonth();
     
+    // Si le cache est d'un mois différent, on l'invalide
     if (cachedMonth !== currentMonth) {
       localStorage.removeItem(CACHE_KEY);
       localStorage.removeItem(CACHE_MONTH_KEY);
@@ -183,31 +189,46 @@ function setCachedData(data) {
   }
 }
 
+function clearCache() {
+  localStorage.removeItem(CACHE_KEY);
+  localStorage.removeItem(CACHE_MONTH_KEY);
+  alert('Cache vidé. Rechargez la page pour récupérer les données fraîches.');
+}
+
 // ============ INITIALISATION ============
 async function initDashboard() {
   try {
+    // Essayer de charger depuis le cache d'abord
     var cached = getCachedData();
     
     if (cached) {
+      console.log('Données chargées depuis le cache');
       allData = cached;
     } else {
+      console.log('Récupération des données depuis l\'API...');
       var res = await fetch(API_URL);
       allData = await res.json();
       setCachedData(allData);
+      console.log('Données mises en cache');
     }
 
     document.getElementById("loading").style.display = "none";
     document.getElementById("dashboard-content").style.display = "block";
 
+    // Initialiser le sélecteur de période avec le site par défaut
     initPeriodSelector();
     
+    // Appliquer le hash APRÈS que les données soient chargées
     var hashApplied = applyHashToSelectors();
+    
+    // Mettre à jour le hash seulement s'il n'y en avait pas de valide
     if (!hashApplied) {
       updateHash();
     }
     
     updateDashboard();
 
+    // Event listeners
     document.getElementById("site-select").addEventListener("change", function() {
       initPeriodSelector();
       updateHash();
@@ -219,6 +240,7 @@ async function initDashboard() {
       updateDashboard();
     });
     
+    // Écouter les changements de hash (bouton retour/avant du navigateur)
     window.addEventListener("hashchange", function() {
       if (applyHashToSelectors()) {
         updateDashboard();
@@ -231,13 +253,18 @@ async function initDashboard() {
   }
 }
 
-initDashboard();
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initDashboard);
+} else {
+  initDashboard();
+}
 
 function initPeriodSelector() {
   var sheetName = document.getElementById("site-select").value;
   var rows = getRowsForSheet(sheetName);
   var periodSelect = document.getElementById("period-select");
 
+  // Collecter les années et mois disponibles
   var yearMonths = {};
   rows.forEach(function(row) {
     var m = String(row.date).match(/^(\d{4})-(\d{2})/);
@@ -251,11 +278,13 @@ function initPeriodSelector() {
     }
   });
 
+  // Trier les années décroissantes et les mois décroissants
   var years = Object.keys(yearMonths).sort().reverse();
   years.forEach(function(year) {
     yearMonths[year].sort().reverse();
   });
 
+  // Construire les options
   var options = '';
   years.forEach(function(year) {
     options += '<option value="year-' + year + '">' + year + '</option>';
@@ -267,6 +296,7 @@ function initPeriodSelector() {
 
   periodSelect.innerHTML = options;
   
+  // Sélectionner le dernier mois disponible par défaut
   if (years.length > 0) {
     var lastYear = years[0];
     var lastMonth = yearMonths[lastYear][0];
@@ -283,7 +313,7 @@ function getRowsForSheet(sheetName) {
 function getTopPagesForSite(siteName) {
   if (!allData || !allData.sheets || !allData.sheets["Top Pages"]) return [];
   var allTopPages = allData.sheets["Top Pages"].rows || [];
-  return allTopPages.filter(function(row) { return row.site === SITE_CODES_REVERSE[siteName]; });
+  return allTopPages.filter(function(row) { return row.site === siteName; });
 }
 
 function getRowForMonth(rows, ym) {
@@ -299,7 +329,7 @@ function getRowForMonth(rows, ym) {
 // ============ UTILITIES ============
 function parseDuration(str) {
   if (!str) return 0;
-  var m = String(str).match(/(\d+)\s*min\s*(\d+)?\s*s?/);
+  var m = str.match(/(\d+)\s*min\s*(\d+)?\s*s?/);
   if (m) {
     return parseInt(m[1]) * 60 + (parseInt(m[2]) || 0);
   }
@@ -328,7 +358,7 @@ function formatPercent(value, showSign) {
 }
 
 function formatNumber(n) {
-  return Number(n || 0).toLocaleString("fr-FR");
+  return n.toLocaleString("fr-FR");
 }
 
 function calcVariation(current, previous) {
@@ -342,6 +372,7 @@ function updateDashboard() {
   var periodValue = document.getElementById("period-select").value;
   var rows = getRowsForSheet(sheetName);
 
+  // Mettre à jour le titre pour l'impression
   updatePrintTitle(sheetName, periodValue);
 
   if (periodValue.indexOf("year-") === 0) {
@@ -366,11 +397,13 @@ function updatePrintTitle(sheetName, periodValue) {
     periodLabel = MOIS_NOMS[monthIndex] + ' ' + parts[0];
   }
   
+  // Mettre à jour le span dans le h1
   var printPeriod = document.getElementById("print-period");
   if (printPeriod) {
     printPeriod.textContent = ' — ' + siteName + ' — ' + periodLabel;
   }
   
+  // Mettre à jour le titre de la page
   document.title = 'Dashboard Matomo - ' + siteName + ' - ' + periodLabel;
 }
 
@@ -461,14 +494,14 @@ function aggregateRows(rows) {
   rows.forEach(function(r) {
     agg.visites += Number(r.visites || 0);
     agg.pages_vues += Number(r.pages_vues || 0);
-    agg.telechargements += Number(r.telechargements || 0);
+    agg.telechargements += Number(r.telechargements || r.telechargement || 0);
     agg.taux_rebond_sum += Number(r.taux_de_rebond || 0);
     agg.duree_sum += parseDuration(r.duree_moyenne);
     agg.actions_moy_sum += Number(r.actions_moy || 0);
     agg.moteurs_de_recherche += Number(r.moteurs_de_recherche || 0);
     agg.entrees_directes += Number(r.entrees_directes || 0);
     agg.sites_externes += Number(r.sites_externes || 0);
-    agg.assistants_ia += Number(r.assistants_ia || 0);
+    agg.assistants_ia += Number(r.assistants_ia || r["Assistants IA"] || 0);
     agg.reseaux_sociaux += Number(r.reseaux_sociaux || 0);
     agg.campagnes += Number(r.campagnes || 0);
     agg.ordinateurs += Number(r.ordinateurs || 0);
@@ -492,7 +525,7 @@ function renderKPIs(current, prevMonth, prevYear, labelM1, labelN1) {
 
   var visites = Number(current.visites || 0);
   var pagesVues = Number(current.pages_vues || 0);
-  var telechargements = Number(current.telechargements || 0);
+  var telechargements = Number(current.telechargements || current.telechargement || 0);
   var tauxRebond = Number(current.taux_de_rebond || 0) * 100;
   var duree = parseDuration(current.duree_moyenne);
   var actionsMoy = Number(current.actions_moy || 0);
@@ -501,8 +534,8 @@ function renderKPIs(current, prevMonth, prevYear, labelM1, labelN1) {
   var visitesN1 = prevYear ? Number(prevYear.visites || 0) : null;
   var pagesM1 = prevMonth ? Number(prevMonth.pages_vues || 0) : null;
   var pagesN1 = prevYear ? Number(prevYear.pages_vues || 0) : null;
-  var telechM1 = prevMonth ? Number(prevMonth.telechargements || 0) : null;
-  var telechN1 = prevYear ? Number(prevYear.telechargements || 0) : null;
+  var telechM1 = prevMonth ? Number(prevMonth.telechargements || prevMonth.telechargement || 0) : null;
+  var telechN1 = prevYear ? Number(prevYear.telechargements || prevYear.telechargement || 0) : null;
   var rebondM1 = prevMonth ? Number(prevMonth.taux_de_rebond || 0) * 100 : null;
   var rebondN1 = prevYear ? Number(prevYear.taux_de_rebond || 0) * 100 : null;
   var dureeM1 = prevMonth ? parseDuration(prevMonth.duree_moyenne) : null;
@@ -515,8 +548,7 @@ function renderKPIs(current, prevMonth, prevYear, labelM1, labelN1) {
     renderKPICard("Pages vues", formatNumber(pagesVues), calcVariation(pagesVues, pagesM1), calcVariation(pagesVues, pagesN1), labelM1, labelN1, false) +
     renderKPICard("Taux de rebond", tauxRebond.toFixed(1) + "%", calcVariation(tauxRebond, rebondM1), calcVariation(tauxRebond, rebondN1), labelM1, labelN1, true) +
     renderKPICard("Durée moyenne", formatDuration(duree), calcVariation(duree, dureeM1), calcVariation(duree, dureeN1), labelM1, labelN1, false) +
-    renderKPICard("Actions moyennes", actionsMoy.toFixed(1), calcVariation(actionsMoy, actionsM1), calcVariation(actionsMoy, actionsN1), labelM1, labelN1, false) +
-    renderKPICard("Téléchargements", formatNumber(telechargements), calcVariation(telechargements, telechM1), calcVariation(telechargements, telechN1), labelM1, labelN1, false);
+    renderKPICard("Actions moyennes", actionsMoy.toFixed(1), calcVariation(actionsMoy, actionsM1), calcVariation(actionsMoy, actionsN1), labelM1, labelN1, false);
 }
 
 function renderKPIsFromAgg(current, prev, labelPrev) {
@@ -529,14 +561,14 @@ function renderKPIsFromAgg(current, prev, labelPrev) {
 
   var visites = current.visites;
   var pagesVues = current.pages_vues;
-  var telechargements = current.telechargements;
+  var telechargements = current.telechargements || 0;
   var tauxRebond = current.taux_rebond * 100;
   var duree = current.duree_moyenne;
   var actionsMoy = current.actions_moy;
 
   var visitesP = prev ? prev.visites : null;
   var pagesP = prev ? prev.pages_vues : null;
-  var telechP = prev ? prev.telechargements : null;
+  var telechP = prev ? (prev.telechargements || 0) : null;
   var rebondP = prev ? prev.taux_rebond * 100 : null;
   var dureeP = prev ? prev.duree_moyenne : null;
   var actionsP = prev ? prev.actions_moy : null;
@@ -546,8 +578,7 @@ function renderKPIsFromAgg(current, prev, labelPrev) {
     renderKPICard("Pages vues", formatNumber(pagesVues), null, calcVariation(pagesVues, pagesP), "", labelPrev, false) +
     renderKPICard("Taux de rebond", tauxRebond.toFixed(1) + "%", null, calcVariation(tauxRebond, rebondP), "", labelPrev, true) +
     renderKPICard("Durée moyenne", formatDuration(duree), null, calcVariation(duree, dureeP), "", labelPrev, false) +
-    renderKPICard("Actions moyennes", actionsMoy.toFixed(1), null, calcVariation(actionsMoy, actionsP), "", labelPrev, false) +
-    renderKPICard("Téléchargements", formatNumber(telechargements), null, calcVariation(telechargements, telechP), "", labelPrev, false);
+    renderKPICard("Actions moyennes", actionsMoy.toFixed(1), null, calcVariation(actionsMoy, actionsP), "", labelPrev, false);
 }
 
 function renderKPICard(title, value, varM1, varN1, labelM1, labelN1, invertColors) {
@@ -586,14 +617,19 @@ function renderSourcesPie(sheetName, ym, row) {
   if (sourcesChart) sourcesChart.destroy();
 
   if (!row) {
+    sourcesChart = new Chart(ctx, { type: "pie", data: { labels: [], datasets: [] } });
     return;
   }
+
+  var siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
+  var m = ym.match(/^(\d{4})-(\d{2})$/);
+  var monthLabel = m ? (m[2] + '/' + m[1]) : ym;
 
   var data = [
     Number(row.moteurs_de_recherche || 0),
     Number(row.entrees_directes || 0),
     Number(row.sites_externes || 0),
-    Number(row.assistants_ia || 0),
+    Number(row.assistants_ia || row["Assistants IA"] || 0),
     Number(row.reseaux_sociaux || 0),
     Number(row.campagnes || 0)
   ];
@@ -602,23 +638,10 @@ function renderSourcesPie(sheetName, ym, row) {
     type: "pie",
     plugins: [ChartDataLabels],
     data: {
-      labels: ["Moteurs", "Direct", "Sites Ext.", "Assistants IA", "Réseaux Sociaux", "Campagnes"],
+      labels: ["Moteurs de recherche", "Entrées directes", "Sites externes", "Assistants IA", "Réseaux sociaux", "Campagnes"],
       datasets: [{ data: data, backgroundColor: getAllColors(sheetName).slice(0, 6), borderWidth: 2, borderColor: "#fff" }]
     },
-    options: {
-      responsive: true,
-      plugins: {
-        datalabels: {
-          color: "#fff",
-          font: { weight: "bold" },
-          formatter: function(value, ctx) {
-            var total = ctx.dataset.data.reduce(function(a, b) { return a + b; }, 0);
-            return value > 0 ? (value / total * 100).toFixed(1) + "%" : "";
-          }
-        },
-        legend: { position: "bottom" }
-      }
-    }
+    options: getPieOptions('Sources de trafic – ' + siteLabel + ' – ' + monthLabel)
   });
 }
 
@@ -626,38 +649,22 @@ function renderSourcesPieFromAgg(sheetName, label, agg) {
   var ctx = document.getElementById("sourcesChart").getContext("2d");
   if (sourcesChart) sourcesChart.destroy();
 
-  if (!agg) return;
+  if (!agg) {
+    sourcesChart = new Chart(ctx, { type: "pie", data: { labels: [], datasets: [] } });
+    return;
+  }
 
-  var data = [
-    Number(agg.moteurs_de_recherche || 0),
-    Number(agg.entrees_directes || 0),
-    Number(agg.sites_externes || 0),
-    Number(agg.assistants_ia || 0),
-    Number(agg.reseaux_sociaux || 0),
-    Number(agg.campagnes || 0)
-  ];
+  var siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
+  var data = [agg.moteurs_de_recherche, agg.entrees_directes, agg.sites_externes, agg.assistants_ia, agg.reseaux_sociaux, agg.campagnes];
 
   sourcesChart = new Chart(ctx, {
     type: "pie",
     plugins: [ChartDataLabels],
     data: {
-      labels: ["Moteurs", "Direct", "Sites Ext.", "Assistants IA", "Réseaux Sociaux", "Campagnes"],
+      labels: ["Moteurs de recherche", "Entrées directes", "Sites externes", "Assistants IA", "Réseaux sociaux", "Campagnes"],
       datasets: [{ data: data, backgroundColor: getAllColors(sheetName).slice(0, 6), borderWidth: 2, borderColor: "#fff" }]
     },
-    options: {
-      responsive: true,
-      plugins: {
-        datalabels: {
-          color: "#fff",
-          font: { weight: "bold" },
-          formatter: function(value, ctx) {
-            var total = ctx.dataset.data.reduce(function(a, b) { return a + b; }, 0);
-            return value > 0 ? (value / total * 100).toFixed(1) + "%" : "";
-          }
-        },
-        legend: { position: "bottom" }
-      }
-    }
+    options: getPieOptions('Sources de trafic – ' + siteLabel + ' – ' + label)
   });
 }
 
@@ -665,7 +672,14 @@ function renderDevicesPie(sheetName, ym, row) {
   var ctx = document.getElementById("devicesChart").getContext("2d");
   if (devicesChart) devicesChart.destroy();
 
-  if (!row) return;
+  if (!row) {
+    devicesChart = new Chart(ctx, { type: "pie", data: { labels: [], datasets: [] } });
+    return;
+  }
+
+  var siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
+  var m = ym.match(/^(\d{4})-(\d{2})$/);
+  var monthLabel = m ? (m[2] + '/' + m[1]) : ym;
 
   var data = [
     Number(row.ordinateurs || 0),
@@ -673,27 +687,16 @@ function renderDevicesPie(sheetName, ym, row) {
     Number(row.tablettes || 0)
   ];
 
+  var colors = PALETTES[sheetName] ? PALETTES[sheetName].primary : PALETTES["Data FA"].primary;
+
   devicesChart = new Chart(ctx, {
     type: "pie",
     plugins: [ChartDataLabels],
     data: {
       labels: ["Ordinateurs", "Smartphones", "Tablettes"],
-      datasets: [{ data: data, backgroundColor: getAllColors(sheetName).slice(0, 3), borderWidth: 2, borderColor: "#fff" }]
+      datasets: [{ data: data, backgroundColor: [colors[0], colors[1], colors[2]], borderWidth: 2, borderColor: "#fff" }]
     },
-    options: {
-      responsive: true,
-      plugins: {
-        datalabels: {
-          color: "#fff",
-          font: { weight: "bold" },
-          formatter: function(value, ctx) {
-            var total = ctx.dataset.data.reduce(function(a, b) { return a + b; }, 0);
-            return value > 0 ? (value / total * 100).toFixed(1) + "%" : "";
-          }
-        },
-        legend: { position: "bottom" }
-      }
-    }
+    options: getPieOptions('Périphériques – ' + siteLabel + ' – ' + monthLabel)
   });
 }
 
@@ -701,36 +704,53 @@ function renderDevicesPieFromAgg(sheetName, label, agg) {
   var ctx = document.getElementById("devicesChart").getContext("2d");
   if (devicesChart) devicesChart.destroy();
 
-  if (!agg) return;
+  if (!agg) {
+    devicesChart = new Chart(ctx, { type: "pie", data: { labels: [], datasets: [] } });
+    return;
+  }
 
-  var data = [
-    Number(agg.ordinateurs || 0),
-    Number(agg.smartphone || 0),
-    Number(agg.tablettes || 0)
-  ];
+  var siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
+  var data = [agg.ordinateurs, agg.smartphone, agg.tablettes];
+  var colors = PALETTES[sheetName] ? PALETTES[sheetName].primary : PALETTES["Data FA"].primary;
 
   devicesChart = new Chart(ctx, {
     type: "pie",
     plugins: [ChartDataLabels],
     data: {
       labels: ["Ordinateurs", "Smartphones", "Tablettes"],
-      datasets: [{ data: data, backgroundColor: getAllColors(sheetName).slice(0, 3), borderWidth: 2, borderColor: "#fff" }]
+      datasets: [{ data: data, backgroundColor: [colors[0], colors[1], colors[2]], borderWidth: 2, borderColor: "#fff" }]
     },
-    options: {
-      responsive: true,
-      plugins: {
-        datalabels: {
-          color: "#fff",
-          font: { weight: "bold" },
-          formatter: function(value, ctx) {
+    options: getPieOptions('Périphériques – ' + siteLabel + ' – ' + label)
+  });
+}
+
+function getPieOptions(title) {
+  return {
+    responsive: true,
+    plugins: {
+      datalabels: {
+        color: "#fff",
+        font: { weight: "bold", size: 13 },
+        formatter: function(value, ctx) {
+          var total = ctx.dataset.data.reduce(function(a, b) { return a + b; }, 0);
+          if (total === 0 || value === 0) return "";
+          var pct = (value / total) * 100;
+          return pct >= 5 ? pct.toFixed(1) + "%" : "";
+        }
+      },
+      title: { display: true, text: title, font: { size: 14, weight: "bold" } },
+      legend: { position: "bottom" },
+      tooltip: {
+        callbacks: {
+          label: function(ctx) {
             var total = ctx.dataset.data.reduce(function(a, b) { return a + b; }, 0);
-            return value > 0 ? (value / total * 100).toFixed(1) + "%" : "";
+            var pct = total > 0 ? (ctx.parsed / total) * 100 : 0;
+            return ' ' + ctx.label + ' : ' + formatNumber(ctx.parsed) + ' (' + pct.toFixed(1) + '%)';
           }
-        },
-        legend: { position: "bottom" }
+        }
       }
     }
-  });
+  };
 }
 
 // ============ EVOLUTION CHART ============
@@ -738,30 +758,72 @@ function renderEvolutionChart(rows, title, sheetName) {
   var ctx = document.getElementById("evolutionChart").getContext("2d");
   if (evolutionChart) evolutionChart.destroy();
 
-  var COLORS = getEvolutionColors(sheetName);
+  var COLORS = getEvolutionColors(sheetName || document.getElementById("site-select").value);
+
+  var labels = rows.map(function(r) {
+    var m = String(r.date).match(/^(\d{4})-(\d{2})/);
+    return m ? (m[2] + '/' + m[1]) : r.date;
+  });
 
   evolutionChart = new Chart(ctx, {
     type: "line",
     data: {
-      labels: rows.map(function(r) { return r.date; }),
+      labels: labels,
       datasets: [
         {
           label: "Visites",
           data: rows.map(function(r) { return Number(r.visites || 0); }),
           borderColor: COLORS.visites,
+          backgroundColor: COLORS.visites + "20",
+          yAxisID: "y",
           tension: 0.3
         },
         {
           label: "Pages vues",
           data: rows.map(function(r) { return Number(r.pages_vues || 0); }),
           borderColor: COLORS.pages_vues,
+          backgroundColor: COLORS.pages_vues + "20",
+          yAxisID: "y",
+          tension: 0.3
+        },
+        {
+          label: "Taux de rebond (%)",
+          data: rows.map(function(r) { return Number(r.taux_de_rebond || 0) * 100; }),
+          borderColor: COLORS.taux_rebond,
+          backgroundColor: COLORS.taux_rebond + "20",
+          yAxisID: "y1",
+          tension: 0.3
+        },
+        {
+          label: "Durée (sec)",
+          data: rows.map(function(r) { return parseDuration(r.duree_moyenne); }),
+          borderColor: COLORS.duree,
+          backgroundColor: COLORS.duree + "20",
+          yAxisID: "y1",
           tension: 0.3
         }
       ]
     },
     options: {
       responsive: true,
-      plugins: { title: { display: true, text: title } }
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        title: { display: true, text: title, font: { size: 14, weight: "bold" } },
+        legend: { position: "bottom" }
+      },
+      scales: {
+        y: {
+          type: "linear",
+          position: "left",
+          title: { display: true, text: "Visites / Pages vues" }
+        },
+        y1: {
+          type: "linear",
+          position: "right",
+          title: { display: true, text: "Taux rebond (%) / Durée (s)" },
+          grid: { drawOnChartArea: false }
+        }
+      }
     }
   });
 }
@@ -771,15 +833,18 @@ function renderComparisonChart(rows, year, sheetName) {
   var ctx = document.getElementById("comparisonChart").getContext("2d");
   if (comparisonChart) comparisonChart.destroy();
 
-  var colors = getComparisonColors(sheetName);
+  var colors = getComparisonColors(sheetName || document.getElementById("site-select").value);
 
-  var currentData = MOIS_NOMS.map(function(m, i) {
-    var row = getRowForMonth(rows, year + '-' + String(i + 1).padStart(2, '0'));
+  var prevYear = String(parseInt(year) - 1);
+  var months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
+
+  var currentData = months.map(function(m) {
+    var row = getRowForMonth(rows, year + '-' + m);
     return row ? Number(row.visites || 0) : 0;
   });
 
-  var prevData = MOIS_NOMS.map(function(m, i) {
-    var row = getRowForMonth(rows, (parseInt(year) - 1) + '-' + String(i + 1).padStart(2, '0'));
+  var prevData = months.map(function(m) {
+    var row = getRowForMonth(rows, prevYear + '-' + m);
     return row ? Number(row.visites || 0) : 0;
   });
 
@@ -788,9 +853,27 @@ function renderComparisonChart(rows, year, sheetName) {
     data: {
       labels: MOIS_NOMS,
       datasets: [
-        { label: year, data: currentData, backgroundColor: colors.current },
-        { label: parseInt(year) - 1, data: prevData, backgroundColor: colors.previous }
+        {
+          label: year,
+          data: currentData,
+          backgroundColor: colors.current
+        },
+        {
+          label: prevYear,
+          data: prevData,
+          backgroundColor: colors.previous
+        }
       ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: { display: true, text: 'Visites mensuelles : ' + year + ' vs ' + prevYear, font: { size: 14, weight: "bold" } },
+        legend: { position: "bottom" }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
     }
   });
 }
@@ -798,22 +881,124 @@ function renderComparisonChart(rows, year, sheetName) {
 // ============ TOP PAGES ============
 function updateTopPages(sheetName, period) {
   var topPages = getTopPagesForSite(sheetName);
-  var filtered = topPages.filter(function(row) { return String(row.date).startsWith(period); })
-                         .sort(function(a, b) { return a.position - b.position; }).slice(0, 10);
   
-  var tbody = document.querySelector("#top-pages-table tbody");
+  var isYear = period.length === 4;
+  
+  var filtered;
+  if (isYear) {
+    filtered = topPages.filter(function(row) { return String(row.date) === period; });
+  } else {
+    filtered = topPages.filter(function(row) {
+      var m = String(row.date).match(/^(\d{4})-(\d{2})/);
+      return m && (m[1] + '-' + m[2]) === period;
+    });
+  }
+  
+  filtered = filtered.sort(function(a, b) { return a.position - b.position; }).slice(0, 10);
+  
   var thead = document.querySelector("#top-pages-table thead");
+  var tbody = document.querySelector("#top-pages-table tbody");
   
-  thead.innerHTML = '<tr><th class="position">#</th><th class="evolution">Évol.</th><th class="page-title">Page</th><th class="numeric">Vues</th><th class="numeric">% Trafic</th><th class="numeric">Taux rebond</th><th class="numeric">Temps moy.</th></tr>';
+  if (filtered.length === 0) {
+    thead.innerHTML = "";
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">Aucune donnée Top Pages pour cette période</td></tr>';
+    return;
+  }
   
-  tbody.innerHTML = filtered.map(function(row) {
-    var evoClass = row.evolution === "new" ? "new" : (row.evolution.includes("+") ? "up" : "down");
-    return '<tr><td class="position">' + row.position + '</td><td class="evolution ' + evoClass + '">' + row.evolution + '</td><td class="page-title"><a href="' + row.url + '" target="_blank">' + row.titre_page + '</a></td><td class="numeric">' + formatNumber(row.vues) + '</td><td class="numeric">' + (row.pct_trafic * 100).toFixed(1) + '%</td><td class="numeric">' + (row.taux_rebond * 100).toFixed(0) + '%</td><td class="numeric">' + row.temps_moyen + '</td></tr>';
-  }).join('');
+  var periodLabel = isYear ? ('Année ' + period) : formatMonthYear(period);
+  document.getElementById("section-top-pages").textContent = '🏆 Top 10 des pages les plus consultées – ' + periodLabel;
+  
+  thead.innerHTML = '<tr>' +
+    '<th class="position">#</th>' +
+    '<th class="evolution">Évol.</th>' +
+    '<th class="page-title">Page</th>' +
+    '<th class="numeric">Vues</th>' +
+    '<th class="numeric">% Trafic</th>' +
+    '<th class="numeric">Taux rebond</th>' +
+    '<th class="numeric">Temps moy.</th>' +
+    '</tr>';
+  
+  var tbodyHtml = '';
+  filtered.forEach(function(row) {
+    var evolutionClass = getEvolutionClass(row.evolution);
+    var evolutionLabel = getEvolutionLabel(row.evolution);
+    
+    tbodyHtml += '<tr>' +
+      '<td class="position">' + row.position + '</td>' +
+      '<td class="evolution ' + evolutionClass + '">' + evolutionLabel + '</td>' +
+      '<td class="page-title"><a href="' + row.url + '" target="_blank" title="' + row.titre_page + '">' + truncateText(row.titre_page, 60) + '</a></td>' +
+      '<td class="numeric">' + formatNumber(row.vues) + '</td>' +
+      '<td class="numeric">' + (row.pct_trafic * 100).toFixed(2) + '%</td>' +
+      '<td class="numeric">' + (row.taux_rebond * 100).toFixed(1) + '%</td>' +
+      '<td class="numeric">' + row.temps_moyen + '</td>' +
+      '</tr>';
+  });
+  tbody.innerHTML = tbodyHtml;
 }
 
-function toggleDarkMode() { document.body.classList.toggle("dark"); }
-function exportPDF() { window.print(); }
-async function refreshData() { localStorage.removeItem(CACHE_KEY); location.reload(); }
+function getEvolutionClass(evolution) {
+  if (evolution === "new") return "new";
+  if (evolution === "stable" || evolution === "=" || evolution === "—") return "stable";
+  var num = parseInt(evolution);
+  if (num > 0) return "up";
+  if (num < 0) return "down";
+  return "stable";
+}
 
-document.addEventListener("DOMContentLoaded", initDashboard);
+function getEvolutionLabel(evolution) {
+  if (evolution === "new") return "🆕 New";
+  if (evolution === "stable" || evolution === "=" || evolution === "—") return "— Stable";
+  var num = parseInt(evolution);
+  if (num > 0) return "↑ +" + num;
+  if (num < 0) return "↓ " + num;
+  return "-";
+}
+
+function truncateText(text, maxLength) {
+  if (!text) return "";
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + "...";
+}
+
+// ============ DARK MODE ============
+function toggleDarkMode() {
+  document.body.classList.toggle("dark");
+  var btn = document.querySelector(".toggle-dark");
+  btn.textContent = document.body.classList.contains("dark") ? "☀️ Mode clair" : "🌙 Mode sombre";
+}
+
+// ============ EXPORT PDF ============
+function exportPDF() {
+  window.print();
+}
+
+// ============ REFRESH DATA ============
+async function refreshData() {
+  var btn = document.querySelector('.refresh-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳';
+  
+  try {
+    // Vider le cache
+    localStorage.removeItem(CACHE_KEY);
+    localStorage.removeItem(CACHE_MONTH_KEY);
+    
+    // Recharger depuis l'API
+    var res = await fetch(API_URL);
+    allData = await res.json();
+    setCachedData(allData);
+    
+    // Mettre à jour l'affichage
+    initPeriodSelector();
+    applyHashToSelectors();
+    updateDashboard();
+    
+    console.log('Données rafraîchies');
+  } catch (err) {
+    console.error('Erreur rafraîchissement:', err);
+    alert('Erreur lors du rafraîchissement des données');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔄';
+  }
+}

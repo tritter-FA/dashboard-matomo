@@ -23,14 +23,14 @@ const SITE_CODES_REVERSE = {
 // Palettes de couleurs par site
 const PALETTES = {
   "Data FA": {
-    primary: ["#FA5629", "#007770", "#4984A9", "#68B0AC", "#FFB347", "#77DD77", "#A181E0"], // Ajout de couleurs pour IA/Social
+    primary: ["#FA5629", "#007770", "#4984A9", "#68B0AC", "#FFB347", "#77DD77", "#A181E0"],
     secondary: ["#FA5629CC", "#007770CC", "#4984A9CC", "#68B0ACCC"],
     tertiary: ["#FA562999", "#00777099", "#4984A999", "#68B0AC99"],
     accent: "#FA5629",
     dark: "#007770"
   },
   "Data AP": {
-    primary: ["#fdc300", "#005da4", "#00a3bb", "#0587b5", "#f07d19", "#292e6b", "#8bc34a"], // Ajout de couleurs
+    primary: ["#fdc300", "#005da4", "#00a3bb", "#0587b5", "#f07d19", "#292e6b", "#8bc34a"],
     secondary: ["#0075b2", "#c13401", "#de5534", "#f07d19"],
     tertiary: ["#b9348b", "#483d8b", "#292e6b", "#7dd5bd"],
     accent: "#fdc300",
@@ -157,13 +157,17 @@ function getCachedData() {
   try {
     var cachedMonth = localStorage.getItem(CACHE_MONTH_KEY);
     var currentMonth = getCurrentMonth();
+    
     if (cachedMonth !== currentMonth) {
       localStorage.removeItem(CACHE_KEY);
       localStorage.removeItem(CACHE_MONTH_KEY);
       return null;
     }
+    
     var cached = localStorage.getItem(CACHE_KEY);
-    if (cached) return JSON.parse(cached);
+    if (cached) {
+      return JSON.parse(cached);
+    }
   } catch (e) {
     console.warn('Erreur lecture cache:', e);
   }
@@ -183,6 +187,7 @@ function setCachedData(data) {
 async function initDashboard() {
   try {
     var cached = getCachedData();
+    
     if (cached) {
       allData = cached;
     } else {
@@ -195,8 +200,11 @@ async function initDashboard() {
     document.getElementById("dashboard-content").style.display = "block";
 
     initPeriodSelector();
+    
     var hashApplied = applyHashToSelectors();
-    if (!hashApplied) updateHash();
+    if (!hashApplied) {
+      updateHash();
+    }
     
     updateDashboard();
 
@@ -212,7 +220,9 @@ async function initDashboard() {
     });
     
     window.addEventListener("hashchange", function() {
-      if (applyHashToSelectors()) updateDashboard();
+      if (applyHashToSelectors()) {
+        updateDashboard();
+      }
     });
 
   } catch (err) {
@@ -220,6 +230,8 @@ async function initDashboard() {
     document.getElementById("loading").textContent = "Erreur de chargement des données.";
   }
 }
+
+initDashboard();
 
 function initPeriodSelector() {
   var sheetName = document.getElementById("site-select").value;
@@ -233,12 +245,16 @@ function initPeriodSelector() {
       var year = m[1];
       var month = m[2];
       if (!yearMonths[year]) yearMonths[year] = [];
-      if (yearMonths[year].indexOf(month) === -1) yearMonths[year].push(month);
+      if (yearMonths[year].indexOf(month) === -1) {
+        yearMonths[year].push(month);
+      }
     }
   });
 
   var years = Object.keys(yearMonths).sort().reverse();
-  years.forEach(function(year) { yearMonths[year].sort().reverse(); });
+  years.forEach(function(year) {
+    yearMonths[year].sort().reverse();
+  });
 
   var options = '';
   years.forEach(function(year) {
@@ -250,6 +266,7 @@ function initPeriodSelector() {
   });
 
   periodSelect.innerHTML = options;
+  
   if (years.length > 0) {
     var lastYear = years[0];
     var lastMonth = yearMonths[lastYear][0];
@@ -272,7 +289,9 @@ function getTopPagesForSite(siteName) {
 function getRowForMonth(rows, ym) {
   for (var i = 0; i < rows.length; i++) {
     var m = String(rows[i].date).match(/^(\d{4})-(\d{2})/);
-    if (m && (m[1] + '-' + m[2]) === ym) return rows[i];
+    if (m && (m[1] + '-' + m[2]) === ym) {
+      return rows[i];
+    }
   }
   return null;
 }
@@ -281,7 +300,9 @@ function getRowForMonth(rows, ym) {
 function parseDuration(str) {
   if (!str) return 0;
   var m = String(str).match(/(\d+)\s*min\s*(\d+)?\s*s?/);
-  if (m) return parseInt(m[1]) * 60 + (parseInt(m[2]) || 0);
+  if (m) {
+    return parseInt(m[1]) * 60 + (parseInt(m[2]) || 0);
+  }
   return 0;
 }
 
@@ -294,7 +315,9 @@ function formatDuration(seconds) {
 function formatMonthYear(ym) {
   var m = ym.match(/^(\d{4})-(\d{2})$/);
   if (!m) return ym;
-  return MOIS_NOMS[parseInt(m[2]) - 1] + ' ' + m[1];
+  var year = m[1];
+  var monthIndex = parseInt(m[2]) - 1;
+  return MOIS_NOMS[monthIndex] + ' ' + year;
 }
 
 function formatPercent(value, showSign) {
@@ -304,7 +327,9 @@ function formatPercent(value, showSign) {
   return (showSign && value > 0 ? sign : "") + value.toFixed(1) + "%";
 }
 
-function formatNumber(n) { return Number(n || 0).toLocaleString("fr-FR"); }
+function formatNumber(n) {
+  return Number(n || 0).toLocaleString("fr-FR");
+}
 
 function calcVariation(current, previous) {
   if (!previous || previous === 0) return null;
@@ -332,12 +357,20 @@ function updateDashboard() {
 function updatePrintTitle(sheetName, periodValue) {
   var siteName = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
   var periodLabel = '';
-  if (periodValue.indexOf("year-") === 0) periodLabel = periodValue.replace("year-", "");
-  else {
+  
+  if (periodValue.indexOf("year-") === 0) {
+    periodLabel = periodValue.replace("year-", "");
+  } else if (periodValue.indexOf("month-") === 0) {
     var parts = periodValue.replace("month-", "").split("-");
-    periodLabel = MOIS_NOMS[parseInt(parts[1]) - 1] + ' ' + parts[0];
+    var monthIndex = parseInt(parts[1]) - 1;
+    periodLabel = MOIS_NOMS[monthIndex] + ' ' + parts[0];
   }
-  document.getElementById("print-period").textContent = ' — ' + siteName + ' — ' + periodLabel;
+  
+  var printPeriod = document.getElementById("print-period");
+  if (printPeriod) {
+    printPeriod.textContent = ' — ' + siteName + ' — ' + periodLabel;
+  }
+  
   document.title = 'Dashboard Matomo - ' + siteName + ' - ' + periodLabel;
 }
 
@@ -346,46 +379,85 @@ function updateMonthlyView(sheetName, rows, ym) {
   var parts = ym.split("-");
   var year = parts[0];
   var month = parts[1];
+  
   var currentRow = getRowForMonth(rows, ym);
   
-  var prevMonth = (parseInt(month) === 1) ? (parseInt(year) - 1) + '-12' : year + '-' + String(parseInt(month) - 1).padStart(2, "0");
+  var prevMonth;
+  if (parseInt(month) === 1) {
+    prevMonth = (parseInt(year) - 1) + '-12';
+  } else {
+    prevMonth = year + '-' + String(parseInt(month) - 1).padStart(2, "0");
+  }
   var prevMonthRow = getRowForMonth(rows, prevMonth);
+  
   var prevYearMonth = (parseInt(year) - 1) + '-' + month;
   var prevYearRow = getRowForMonth(rows, prevYearMonth);
 
   renderKPIs(currentRow, prevMonthRow, prevYearRow, "M-1", MOIS_NOMS[parseInt(month)-1] + ' ' + (parseInt(year)-1));
+
   document.getElementById("section-repartition").textContent = 'Sources de trafic et devices – ' + formatMonthYear(ym);
   renderSourcesPie(sheetName, ym, currentRow);
   renderDevicesPie(sheetName, ym, currentRow);
+
   updateTopPages(sheetName, ym);
 
-  var idx = -1;
-  for (var i = 0; i < rows.length; i++) { if (String(rows[i].date).startsWith(ym)) { idx = i; break; } }
-  var last12 = rows.slice(Math.max(0, idx - 11), idx + 1);
+  var monthIndex = -1;
+  for (var i = 0; i < rows.length; i++) {
+    var m = String(rows[i].date).match(/^(\d{4})-(\d{2})/);
+    if (m && (m[1] + '-' + m[2]) === ym) {
+      monthIndex = i;
+      break;
+    }
+  }
+  var last12 = rows.slice(Math.max(0, monthIndex - 11), monthIndex + 1);
   renderEvolutionChart(last12, 'Évolution sur 12 mois (jusqu\'à ' + formatMonthYear(ym) + ')', sheetName);
+
   document.getElementById("comparison-section").style.display = "none";
 }
 
 // ============ YEARLY VIEW ============
 function updateYearlyView(sheetName, rows, year) {
-  var yearRows = rows.filter(function(r) { return String(r.date).startsWith(year); });
-  var prevYearRows = rows.filter(function(r) { return String(r.date).startsWith(String(parseInt(year) - 1)); });
+  var yearRows = rows.filter(function(r) { return String(r.date).indexOf(year) === 0; });
+  var prevYearRows = rows.filter(function(r) { return String(r.date).indexOf(String(parseInt(year) - 1)) === 0; });
+
   var currentAgg = aggregateRows(yearRows);
   var prevAgg = aggregateRows(prevYearRows);
 
   renderKPIsFromAgg(currentAgg, prevAgg, String(parseInt(year)-1));
+
   document.getElementById("section-repartition").textContent = 'Sources de trafic et devices – Année ' + year;
   renderSourcesPieFromAgg(sheetName, year, currentAgg);
   renderDevicesPieFromAgg(sheetName, year, currentAgg);
+
   updateTopPages(sheetName, year);
+
   renderEvolutionChart(yearRows, 'Évolution mensuelle - ' + year, sheetName);
+
   document.getElementById("comparison-section").style.display = "block";
+  document.getElementById("section-comparison").textContent = 'Comparaison ' + year + ' vs ' + (parseInt(year)-1);
   renderComparisonChart(rows, year, sheetName);
 }
 
 function aggregateRows(rows) {
   if (!rows || rows.length === 0) return null;
-  var agg = { visites: 0, pages_vues: 0, telechargements: 0, taux_rebond_sum: 0, duree_sum: 0, actions_moy_sum: 0, count: rows.length, moteurs_de_recherche: 0, entrees_directes: 0, sites_externes: 0, assistants_ia: 0, reseaux_sociaux: 0, campagnes: 0, ordinateurs: 0, smartphone: 0, tablettes: 0 };
+  var agg = {
+    visites: 0,
+    pages_vues: 0,
+    telechargements: 0,
+    taux_rebond_sum: 0,
+    duree_sum: 0,
+    actions_moy_sum: 0,
+    count: rows.length,
+    moteurs_de_recherche: 0,
+    entrees_directes: 0,
+    sites_externes: 0,
+    assistants_ia: 0,
+    reseaux_sociaux: 0,
+    campagnes: 0,
+    ordinateurs: 0,
+    smartphone: 0,
+    tablettes: 0
+  };
   rows.forEach(function(r) {
     agg.visites += Number(r.visites || 0);
     agg.pages_vues += Number(r.pages_vues || 0);
@@ -412,106 +484,331 @@ function aggregateRows(rows) {
 // ============ RENDER KPIs ============
 function renderKPIs(current, prevMonth, prevYear, labelM1, labelN1) {
   var grid = document.getElementById("kpis-grid");
-  if (!current) { grid.innerHTML = '<div class="kpi-card">Aucune donnée</div>'; return; }
+  
+  if (!current) {
+    grid.innerHTML = '<div class="kpi-card">Aucune donnée</div>';
+    return;
+  }
 
-  var v = Number(current.visites || 0), pv = Number(current.pages_vues || 0), t = Number(current.telechargements || 0), tr = Number(current.taux_de_rebond || 0) * 100, d = parseDuration(current.duree_moyenne), am = Number(current.actions_moy || 0);
-  var vM1 = prevMonth ? Number(prevMonth.visites || 0) : null, vN1 = prevYear ? Number(prevYear.visites || 0) : null;
-  var pvM1 = prevMonth ? Number(prevMonth.pages_vues || 0) : null, pvN1 = prevYear ? Number(prevYear.pages_vues || 0) : null;
-  var tM1 = prevMonth ? Number(prevMonth.telechargements || 0) : null, tN1 = prevYear ? Number(prevYear.telechargements || 0) : null;
-  var trM1 = prevMonth ? Number(prevMonth.taux_de_rebond || 0) * 100 : null, trN1 = prevYear ? Number(prevYear.taux_de_rebond || 0) * 100 : null;
-  var dM1 = prevMonth ? parseDuration(prevMonth.duree_moyenne) : null, dN1 = prevYear ? parseDuration(prevYear.duree_moyenne) : null;
-  var amM1 = prevMonth ? Number(prevMonth.actions_moy || 0) : null, amN1 = prevYear ? Number(prevYear.actions_moy || 0) : null;
+  var visites = Number(current.visites || 0);
+  var pagesVues = Number(current.pages_vues || 0);
+  var telechargements = Number(current.telechargements || 0);
+  var tauxRebond = Number(current.taux_de_rebond || 0) * 100;
+  var duree = parseDuration(current.duree_moyenne);
+  var actionsMoy = Number(current.actions_moy || 0);
 
-  grid.innerHTML = renderKPICard("Visites", formatNumber(v), calcVariation(v, vM1), calcVariation(v, vN1), labelM1, labelN1, false) +
-    renderKPICard("Pages vues", formatNumber(pv), calcVariation(pv, pvM1), calcVariation(pv, pvN1), labelM1, labelN1, false) +
-    renderKPICard("Taux de rebond", tr.toFixed(1) + "%", calcVariation(tr, trM1), calcVariation(tr, trN1), labelM1, labelN1, true) +
-    renderKPICard("Durée moyenne", formatDuration(d), calcVariation(d, dM1), calcVariation(d, dN1), labelM1, labelN1, false) +
-    renderKPICard("Actions moyennes", am.toFixed(1), calcVariation(am, amM1), calcVariation(am, amN1), labelM1, labelN1, false) +
-    renderKPICard("Téléchargements", formatNumber(t), calcVariation(t, tM1), calcVariation(t, tN1), labelM1, labelN1, false);
+  var visitesM1 = prevMonth ? Number(prevMonth.visites || 0) : null;
+  var visitesN1 = prevYear ? Number(prevYear.visites || 0) : null;
+  var pagesM1 = prevMonth ? Number(prevMonth.pages_vues || 0) : null;
+  var pagesN1 = prevYear ? Number(prevYear.pages_vues || 0) : null;
+  var telechM1 = prevMonth ? Number(prevMonth.telechargements || 0) : null;
+  var telechN1 = prevYear ? Number(prevYear.telechargements || 0) : null;
+  var rebondM1 = prevMonth ? Number(prevMonth.taux_de_rebond || 0) * 100 : null;
+  var rebondN1 = prevYear ? Number(prevYear.taux_de_rebond || 0) * 100 : null;
+  var dureeM1 = prevMonth ? parseDuration(prevMonth.duree_moyenne) : null;
+  var dureeN1 = prevYear ? parseDuration(prevYear.duree_moyenne) : null;
+  var actionsM1 = prevMonth ? Number(prevMonth.actions_moy || 0) : null;
+  var actionsN1 = prevYear ? Number(prevYear.actions_moy || 0) : null;
+
+  grid.innerHTML = 
+    renderKPICard("Visites", formatNumber(visites), calcVariation(visites, visitesM1), calcVariation(visites, visitesN1), labelM1, labelN1, false) +
+    renderKPICard("Pages vues", formatNumber(pagesVues), calcVariation(pagesVues, pagesM1), calcVariation(pagesVues, pagesN1), labelM1, labelN1, false) +
+    renderKPICard("Taux de rebond", tauxRebond.toFixed(1) + "%", calcVariation(tauxRebond, rebondM1), calcVariation(tauxRebond, rebondN1), labelM1, labelN1, true) +
+    renderKPICard("Durée moyenne", formatDuration(duree), calcVariation(duree, dureeM1), calcVariation(duree, dureeN1), labelM1, labelN1, false) +
+    renderKPICard("Actions moyennes", actionsMoy.toFixed(1), calcVariation(actionsMoy, actionsM1), calcVariation(actionsMoy, actionsN1), labelM1, labelN1, false) +
+    renderKPICard("Téléchargements", formatNumber(telechargements), calcVariation(telechargements, telechM1), calcVariation(telechargements, telechN1), labelM1, labelN1, false);
 }
 
 function renderKPIsFromAgg(current, prev, labelPrev) {
   var grid = document.getElementById("kpis-grid");
-  if (!current) { grid.innerHTML = '<div class="kpi-card">Aucune donnée</div>'; return; }
-  grid.innerHTML = renderKPICard("Visites", formatNumber(current.visites), null, calcVariation(current.visites, prev?.visites), "", labelPrev, false) +
-    renderKPICard("Pages vues", formatNumber(current.pages_vues), null, calcVariation(current.pages_vues, prev?.pages_vues), "", labelPrev, false) +
-    renderKPICard("Taux de rebond", (current.taux_rebond * 100).toFixed(1) + "%", null, calcVariation(current.taux_rebond, prev?.taux_rebond), "", labelPrev, true) +
-    renderKPICard("Durée moyenne", formatDuration(current.duree_moyenne), null, calcVariation(current.duree_moyenne, prev?.duree_moyenne), "", labelPrev, false) +
-    renderKPICard("Actions moyennes", current.actions_moy.toFixed(1), null, calcVariation(current.actions_moy, prev?.actions_moy), "", labelPrev, false) +
-    renderKPICard("Téléchargements", formatNumber(current.telechargements), null, calcVariation(current.telechargements, prev?.telechargements), "", labelPrev, false);
+  
+  if (!current) {
+    grid.innerHTML = '<div class="kpi-card">Aucune donnée</div>';
+    return;
+  }
+
+  var visites = current.visites;
+  var pagesVues = current.pages_vues;
+  var telechargements = current.telechargements;
+  var tauxRebond = current.taux_rebond * 100;
+  var duree = current.duree_moyenne;
+  var actionsMoy = current.actions_moy;
+
+  var visitesP = prev ? prev.visites : null;
+  var pagesP = prev ? prev.pages_vues : null;
+  var telechP = prev ? prev.telechargements : null;
+  var rebondP = prev ? prev.taux_rebond * 100 : null;
+  var dureeP = prev ? prev.duree_moyenne : null;
+  var actionsP = prev ? prev.actions_moy : null;
+
+  grid.innerHTML = 
+    renderKPICard("Visites", formatNumber(visites), null, calcVariation(visites, visitesP), "", labelPrev, false) +
+    renderKPICard("Pages vues", formatNumber(pagesVues), null, calcVariation(pagesVues, pagesP), "", labelPrev, false) +
+    renderKPICard("Taux de rebond", tauxRebond.toFixed(1) + "%", null, calcVariation(tauxRebond, rebondP), "", labelPrev, true) +
+    renderKPICard("Durée moyenne", formatDuration(duree), null, calcVariation(duree, dureeP), "", labelPrev, false) +
+    renderKPICard("Actions moyennes", actionsMoy.toFixed(1), null, calcVariation(actionsMoy, actionsP), "", labelPrev, false) +
+    renderKPICard("Téléchargements", formatNumber(telechargements), null, calcVariation(telechargements, telechP), "", labelPrev, false);
 }
 
-function renderKPICard(title, value, varM1, varN1, labelM1, labelN1, invert) {
-  function getCls(v) { if (v === null) return "neutral"; return invert ? (v > 0 ? "down" : "up") : (v > 0 ? "up" : "down"); }
-  var html = '<div class="kpi-card"><h3>' + title + '</h3><div class="kpi-value">' + value + '</div><div class="kpi-comparisons">';
-  if (labelM1 && varM1 !== null) html += '<div class="kpi-comparison"><span class="label">vs ' + labelM1 + ':</span><span class="value ' + getCls(varM1) + '">' + formatPercent(varM1) + '</span></div>';
-  if (labelN1 && varN1 !== null) html += '<div class="kpi-comparison"><span class="label">vs ' + labelN1 + ':</span><span class="value ' + getCls(varN1) + '">' + formatPercent(varN1) + '</span></div>';
-  return html + '</div></div>';
+function renderKPICard(title, value, varM1, varN1, labelM1, labelN1, invertColors) {
+  function getClass(v) {
+    if (v === null) return "neutral";
+    if (invertColors) return v > 0 ? "down" : v < 0 ? "up" : "neutral";
+    return v > 0 ? "up" : v < 0 ? "down" : "neutral";
+  }
+
+  var html = '<div class="kpi-card">' +
+    '<h3>' + title + '</h3>' +
+    '<div class="kpi-value">' + value + '</div>' +
+    '<div class="kpi-comparisons">';
+  
+  if (labelM1 && varM1 !== null) {
+    html += '<div class="kpi-comparison">' +
+      '<span class="label">vs ' + labelM1 + ':</span>' +
+      '<span class="value ' + getClass(varM1) + '">' + formatPercent(varM1) + '</span>' +
+      '</div>';
+  }
+  
+  if (labelN1 && varN1 !== null) {
+    html += '<div class="kpi-comparison">' +
+      '<span class="label">vs ' + labelN1 + ':</span>' +
+      '<span class="value ' + getClass(varN1) + '">' + formatPercent(varN1) + '</span>' +
+      '</div>';
+  }
+  
+  html += '</div></div>';
+  return html;
 }
 
 // ============ PIE CHARTS ============
 function renderSourcesPie(sheetName, ym, row) {
   var ctx = document.getElementById("sourcesChart").getContext("2d");
   if (sourcesChart) sourcesChart.destroy();
-  if (!row) return;
-  var data = [Number(row.moteurs_de_recherche || 0), Number(row.entrees_directes || 0), Number(row.sites_externes || 0), Number(row.assistants_ia || 0), Number(row.reseaux_sociaux || 0), Number(row.campagnes || 0)];
-  sourcesChart = new Chart(ctx, { type: "pie", plugins: [ChartDataLabels], data: { labels: ["Moteurs", "Direct", "Sites Ext.", "Assistants IA", "Réseaux Sociaux", "Campagnes"], datasets: [{ data: data, backgroundColor: getAllColors(sheetName).slice(0, 6), borderWidth: 2, borderColor: "#fff" }] }, options: getPieOptions('Sources – ' + sheetName + ' – ' + ym) });
+
+  if (!row) {
+    return;
+  }
+
+  var data = [
+    Number(row.moteurs_de_recherche || 0),
+    Number(row.entrees_directes || 0),
+    Number(row.sites_externes || 0),
+    Number(row.assistants_ia || 0),
+    Number(row.reseaux_sociaux || 0),
+    Number(row.campagnes || 0)
+  ];
+
+  sourcesChart = new Chart(ctx, {
+    type: "pie",
+    plugins: [ChartDataLabels],
+    data: {
+      labels: ["Moteurs", "Direct", "Sites Ext.", "Assistants IA", "Réseaux Sociaux", "Campagnes"],
+      datasets: [{ data: data, backgroundColor: getAllColors(sheetName).slice(0, 6), borderWidth: 2, borderColor: "#fff" }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        datalabels: {
+          color: "#fff",
+          font: { weight: "bold" },
+          formatter: function(value, ctx) {
+            var total = ctx.dataset.data.reduce(function(a, b) { return a + b; }, 0);
+            return value > 0 ? (value / total * 100).toFixed(1) + "%" : "";
+          }
+        },
+        legend: { position: "bottom" }
+      }
+    }
+  });
 }
 
 function renderSourcesPieFromAgg(sheetName, label, agg) {
   var ctx = document.getElementById("sourcesChart").getContext("2d");
   if (sourcesChart) sourcesChart.destroy();
+
   if (!agg) return;
-  var data = [agg.moteurs_de_recherche, agg.entrees_directes, agg.sites_externes, agg.assistants_ia, agg.reseaux_sociaux, agg.campagnes];
-  sourcesChart = new Chart(ctx, { type: "pie", plugins: [ChartDataLabels], data: { labels: ["Moteurs", "Direct", "Sites Ext.", "Assistants IA", "Réseaux Sociaux", "Campagnes"], datasets: [{ data: data, backgroundColor: getAllColors(sheetName).slice(0, 6), borderWidth: 2, borderColor: "#fff" }] }, options: getPieOptions('Sources – ' + sheetName + ' – ' + label) });
+
+  var data = [
+    Number(agg.moteurs_de_recherche || 0),
+    Number(agg.entrees_directes || 0),
+    Number(agg.sites_externes || 0),
+    Number(agg.assistants_ia || 0),
+    Number(agg.reseaux_sociaux || 0),
+    Number(agg.campagnes || 0)
+  ];
+
+  sourcesChart = new Chart(ctx, {
+    type: "pie",
+    plugins: [ChartDataLabels],
+    data: {
+      labels: ["Moteurs", "Direct", "Sites Ext.", "Assistants IA", "Réseaux Sociaux", "Campagnes"],
+      datasets: [{ data: data, backgroundColor: getAllColors(sheetName).slice(0, 6), borderWidth: 2, borderColor: "#fff" }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        datalabels: {
+          color: "#fff",
+          font: { weight: "bold" },
+          formatter: function(value, ctx) {
+            var total = ctx.dataset.data.reduce(function(a, b) { return a + b; }, 0);
+            return value > 0 ? (value / total * 100).toFixed(1) + "%" : "";
+          }
+        },
+        legend: { position: "bottom" }
+      }
+    }
+  });
 }
 
 function renderDevicesPie(sheetName, ym, row) {
   var ctx = document.getElementById("devicesChart").getContext("2d");
   if (devicesChart) devicesChart.destroy();
+
   if (!row) return;
-  var data = [Number(row.ordinateurs || 0), Number(row.smartphone || 0), Number(row.tablettes || 0)];
-  devicesChart = new Chart(ctx, { type: "pie", plugins: [ChartDataLabels], data: { labels: ["Ordi", "Mobile", "Tablette"], datasets: [{ data: data, backgroundColor: PALETTES[sheetName].primary.slice(0, 3), borderWidth: 2, borderColor: "#fff" }] }, options: getPieOptions('Devices – ' + sheetName + ' – ' + ym) });
+
+  var data = [
+    Number(row.ordinateurs || 0),
+    Number(row.smartphone || 0),
+    Number(row.tablettes || 0)
+  ];
+
+  devicesChart = new Chart(ctx, {
+    type: "pie",
+    plugins: [ChartDataLabels],
+    data: {
+      labels: ["Ordinateurs", "Smartphones", "Tablettes"],
+      datasets: [{ data: data, backgroundColor: getAllColors(sheetName).slice(0, 3), borderWidth: 2, borderColor: "#fff" }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        datalabels: {
+          color: "#fff",
+          font: { weight: "bold" },
+          formatter: function(value, ctx) {
+            var total = ctx.dataset.data.reduce(function(a, b) { return a + b; }, 0);
+            return value > 0 ? (value / total * 100).toFixed(1) + "%" : "";
+          }
+        },
+        legend: { position: "bottom" }
+      }
+    }
+  });
 }
 
 function renderDevicesPieFromAgg(sheetName, label, agg) {
   var ctx = document.getElementById("devicesChart").getContext("2d");
   if (devicesChart) devicesChart.destroy();
+
   if (!agg) return;
-  var data = [agg.ordinateurs, agg.smartphone, agg.tablettes];
-  devicesChart = new Chart(ctx, { type: "pie", plugins: [ChartDataLabels], data: { labels: ["Ordi", "Mobile", "Tablette"], datasets: [{ data: data, backgroundColor: PALETTES[sheetName].primary.slice(0, 3), borderWidth: 2, borderColor: "#fff" }] }, options: getPieOptions('Devices – ' + sheetName + ' – ' + label) });
+
+  var data = [
+    Number(agg.ordinateurs || 0),
+    Number(agg.smartphone || 0),
+    Number(agg.tablettes || 0)
+  ];
+
+  devicesChart = new Chart(ctx, {
+    type: "pie",
+    plugins: [ChartDataLabels],
+    data: {
+      labels: ["Ordinateurs", "Smartphones", "Tablettes"],
+      datasets: [{ data: data, backgroundColor: getAllColors(sheetName).slice(0, 3), borderWidth: 2, borderColor: "#fff" }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        datalabels: {
+          color: "#fff",
+          font: { weight: "bold" },
+          formatter: function(value, ctx) {
+            var total = ctx.dataset.data.reduce(function(a, b) { return a + b; }, 0);
+            return value > 0 ? (value / total * 100).toFixed(1) + "%" : "";
+          }
+        },
+        legend: { position: "bottom" }
+      }
+    }
+  });
 }
 
-function getPieOptions(t) {
-  return { responsive: true, plugins: { datalabels: { color: "#fff", font: { weight: "bold" }, formatter: (v, c) => { var s = c.dataset.data.reduce((a, b) => a + b, 0); return v > 0 ? (v * 100 / s).toFixed(1) + "%" : ""; } }, title: { display: true, text: t }, legend: { position: "bottom" } } };
-}
-
-// ============ EVOLUTION ============
+// ============ EVOLUTION CHART ============
 function renderEvolutionChart(rows, title, sheetName) {
   var ctx = document.getElementById("evolutionChart").getContext("2d");
   if (evolutionChart) evolutionChart.destroy();
-  var c = getEvolutionColors(sheetName);
-  evolutionChart = new Chart(ctx, { type: "line", data: { labels: rows.map(r => r.date), datasets: [{ label: "Visites", data: rows.map(r => r.visites), borderColor: c.visites, tension: 0.3 }, { label: "Pages vues", data: rows.map(r => r.pages_vues), borderColor: c.pages_vues, tension: 0.3 }] }, options: { responsive: true, plugins: { title: { display: true, text: title } } } });
+
+  var COLORS = getEvolutionColors(sheetName);
+
+  evolutionChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: rows.map(function(r) { return r.date; }),
+      datasets: [
+        {
+          label: "Visites",
+          data: rows.map(function(r) { return Number(r.visites || 0); }),
+          borderColor: COLORS.visites,
+          tension: 0.3
+        },
+        {
+          label: "Pages vues",
+          data: rows.map(function(r) { return Number(r.pages_vues || 0); }),
+          borderColor: COLORS.pages_vues,
+          tension: 0.3
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { title: { display: true, text: title } }
+    }
+  });
 }
 
+// ============ COMPARISON CHART ============
 function renderComparisonChart(rows, year, sheetName) {
   var ctx = document.getElementById("comparisonChart").getContext("2d");
   if (comparisonChart) comparisonChart.destroy();
-  var c = getComparisonColors(sheetName);
-  var cur = MOIS_NOMS.map((m, i) => getRowForMonth(rows, year + '-' + String(i + 1).padStart(2, '0'))?.visites || 0);
-  var prev = MOIS_NOMS.map((m, i) => getRowForMonth(rows, (parseInt(year) - 1) + '-' + String(i + 1).padStart(2, '0'))?.visites || 0);
-  comparisonChart = new Chart(ctx, { type: "bar", data: { labels: MOIS_NOMS, datasets: [{ label: year, data: cur, backgroundColor: c.current }, { label: parseInt(year) - 1, data: prev, backgroundColor: c.previous }] } });
+
+  var colors = getComparisonColors(sheetName);
+
+  var currentData = MOIS_NOMS.map(function(m, i) {
+    var row = getRowForMonth(rows, year + '-' + String(i + 1).padStart(2, '0'));
+    return row ? Number(row.visites || 0) : 0;
+  });
+
+  var prevData = MOIS_NOMS.map(function(m, i) {
+    var row = getRowForMonth(rows, (parseInt(year) - 1) + '-' + String(i + 1).padStart(2, '0'));
+    return row ? Number(row.visites || 0) : 0;
+  });
+
+  comparisonChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: MOIS_NOMS,
+      datasets: [
+        { label: year, data: currentData, backgroundColor: colors.current },
+        { label: parseInt(year) - 1, data: prevData, backgroundColor: colors.previous }
+      ]
+    }
+  });
 }
 
 // ============ TOP PAGES ============
 function updateTopPages(sheetName, period) {
-  var rows = getTopPagesForSite(sheetName).filter(r => String(r.date).startsWith(period)).sort((a, b) => a.position - b.position).slice(0, 10);
+  var topPages = getTopPagesForSite(sheetName);
+  var filtered = topPages.filter(function(row) { return String(row.date).startsWith(period); })
+                         .sort(function(a, b) { return a.position - b.position; }).slice(0, 10);
+  
   var tbody = document.querySelector("#top-pages-table tbody");
   var thead = document.querySelector("#top-pages-table thead");
-  thead.innerHTML = '<tr><th>#</th><th>Évol.</th><th>Page</th><th>Vues</th><th>%</th><th>Rebond</th><th>Temps</th></tr>';
-  tbody.innerHTML = rows.map(r => {
-    var cls = r.evolution === "new" ? "new" : (r.evolution.includes("+") ? "up" : "down");
-    return '<tr><td>' + r.position + '</td><td class="evolution ' + cls + '">' + r.evolution + '</td><td><a href="' + r.url + '" target="_blank">' + r.titre_page + '</a></td><td>' + formatNumber(r.vues) + '</td><td>' + (r.pct_trafic * 100).toFixed(1) + '%</td><td>' + (r.taux_rebond * 100).toFixed(0) + '%</td><td>' + r.temps_moyen + '</td></tr>';
+  
+  thead.innerHTML = '<tr><th class="position">#</th><th class="evolution">Évol.</th><th class="page-title">Page</th><th class="numeric">Vues</th><th class="numeric">% Trafic</th><th class="numeric">Taux rebond</th><th class="numeric">Temps moy.</th></tr>';
+  
+  tbody.innerHTML = filtered.map(function(row) {
+    var evoClass = row.evolution === "new" ? "new" : (row.evolution.includes("+") ? "up" : "down");
+    return '<tr><td class="position">' + row.position + '</td><td class="evolution ' + evoClass + '">' + row.evolution + '</td><td class="page-title"><a href="' + row.url + '" target="_blank">' + row.titre_page + '</a></td><td class="numeric">' + formatNumber(row.vues) + '</td><td class="numeric">' + (row.pct_trafic * 100).toFixed(1) + '%</td><td class="numeric">' + (row.taux_rebond * 100).toFixed(0) + '%</td><td class="numeric">' + row.temps_moyen + '</td></tr>';
   }).join('');
 }
 
@@ -519,4 +816,4 @@ function toggleDarkMode() { document.body.classList.toggle("dark"); }
 function exportPDF() { window.print(); }
 async function refreshData() { localStorage.removeItem(CACHE_KEY); location.reload(); }
 
-initDashboard();
+document.addEventListener("DOMContentLoaded", initDashboard);

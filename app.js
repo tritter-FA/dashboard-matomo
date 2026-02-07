@@ -483,6 +483,7 @@ function aggregateRows(rows) {
     moteurs_de_recherche: 0,
     entrees_directes: 0,
     sites_externes: 0,
+    assistants_ia: 0,
     reseaux_sociaux: 0,
     campagnes: 0,
     ordinateurs: 0,
@@ -498,6 +499,7 @@ function aggregateRows(rows) {
     agg.moteurs_de_recherche += Number(r.moteurs_de_recherche || 0);
     agg.entrees_directes += Number(r.entrees_directes || 0);
     agg.sites_externes += Number(r.sites_externes || 0);
+    agg.assistants_ia += Number(r.assistants_ia || r["Assistants IA"] || 0);
     agg.reseaux_sociaux += Number(r.reseaux_sociaux || 0);
     agg.campagnes += Number(r.campagnes || 0);
     agg.ordinateurs += Number(r.ordinateurs || 0);
@@ -620,6 +622,7 @@ function renderSourcesPie(sheetName, ym, row) {
     Number(row.moteurs_de_recherche || 0),
     Number(row.entrees_directes || 0),
     Number(row.sites_externes || 0),
+    Number(row.assistants_ia || row["Assistants IA"] || 0),
     Number(row.reseaux_sociaux || 0),
     Number(row.campagnes || 0)
   ];
@@ -628,8 +631,8 @@ function renderSourcesPie(sheetName, ym, row) {
     type: "pie",
     plugins: [ChartDataLabels],
     data: {
-      labels: ["Moteurs de recherche", "Entrées directes", "Sites externes", "Réseaux sociaux", "Campagnes"],
-      datasets: [{ data: data, backgroundColor: getAllColors(sheetName).slice(0, 5), borderWidth: 2, borderColor: "#fff" }]
+      labels: ["Moteurs de recherche", "Entrées directes", "Sites externes", "Assistants IA", "Réseaux sociaux", "Campagnes"],
+      datasets: [{ data: data, backgroundColor: getAllColors(sheetName).slice(0, 6), borderWidth: 2, borderColor: "#fff" }]
     },
     options: getPieOptions('Sources de trafic – ' + siteLabel + ' – ' + monthLabel)
   });
@@ -645,14 +648,14 @@ function renderSourcesPieFromAgg(sheetName, label, agg) {
   }
 
   var siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
-  var data = [agg.moteurs_de_recherche, agg.entrees_directes, agg.sites_externes, agg.reseaux_sociaux, agg.campagnes];
+  var data = [agg.moteurs_de_recherche, agg.entrees_directes, agg.sites_externes, agg.assistants_ia, agg.reseaux_sociaux, agg.campagnes];
 
   sourcesChart = new Chart(ctx, {
     type: "pie",
     plugins: [ChartDataLabels],
     data: {
-      labels: ["Moteurs de recherche", "Entrées directes", "Sites externes", "Réseaux sociaux", "Campagnes"],
-      datasets: [{ data: data, backgroundColor: getAllColors(sheetName).slice(0, 5), borderWidth: 2, borderColor: "#fff" }]
+      labels: ["Moteurs de recherche", "Entrées directes", "Sites externes", "Assistants IA", "Réseaux sociaux", "Campagnes"],
+      datasets: [{ data: data, backgroundColor: getAllColors(sheetName).slice(0, 6), borderWidth: 2, borderColor: "#fff" }]
     },
     options: getPieOptions('Sources de trafic – ' + siteLabel + ' – ' + label)
   });

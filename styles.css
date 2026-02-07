@@ -434,7 +434,7 @@ body.dark .refresh-btn:hover {
   /* ===== PAGE 1 : KPIs + Graphiques camemberts ===== */
   .kpis-grid {
     display: grid !important;
-    grid-template-columns: repeat(5, 1fr) !important;
+    grid-template-columns: repeat(6, 1fr) !important;
     gap: 8px !important;
     margin-bottom: 10px !important;
     page-break-after: avoid;
@@ -574,4 +574,4 @@ body.dark .refresh-btn:hover {
   .top-pages-table .page-title {
     max-width: 200px;
   }
-} 
+}

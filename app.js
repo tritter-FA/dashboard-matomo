@@ -476,6 +476,7 @@ function aggregateRows(rows) {
   var agg = {
     visites: 0,
     pages_vues: 0,
+    telechargements: 0,
     taux_rebond_sum: 0,
     duree_sum: 0,
     actions_moy_sum: 0,
@@ -493,6 +494,7 @@ function aggregateRows(rows) {
   rows.forEach(function(r) {
     agg.visites += Number(r.visites || 0);
     agg.pages_vues += Number(r.pages_vues || 0);
+    agg.telechargements += Number(r.telechargements || r.telechargement || 0);
     agg.taux_rebond_sum += Number(r.taux_de_rebond || 0);
     agg.duree_sum += parseDuration(r.duree_moyenne);
     agg.actions_moy_sum += Number(r.actions_moy || 0);
@@ -523,6 +525,7 @@ function renderKPIs(current, prevMonth, prevYear, labelM1, labelN1) {
 
   var visites = Number(current.visites || 0);
   var pagesVues = Number(current.pages_vues || 0);
+  var telechargements = Number(current.telechargements || current.telechargement || 0);
   var tauxRebond = Number(current.taux_de_rebond || 0) * 100;
   var duree = parseDuration(current.duree_moyenne);
   var actionsMoy = Number(current.actions_moy || 0);
@@ -531,6 +534,8 @@ function renderKPIs(current, prevMonth, prevYear, labelM1, labelN1) {
   var visitesN1 = prevYear ? Number(prevYear.visites || 0) : null;
   var pagesM1 = prevMonth ? Number(prevMonth.pages_vues || 0) : null;
   var pagesN1 = prevYear ? Number(prevYear.pages_vues || 0) : null;
+  var telechM1 = prevMonth ? Number(prevMonth.telechargements || prevMonth.telechargement || 0) : null;
+  var telechN1 = prevYear ? Number(prevYear.telechargements || prevYear.telechargement || 0) : null;
   var rebondM1 = prevMonth ? Number(prevMonth.taux_de_rebond || 0) * 100 : null;
   var rebondN1 = prevYear ? Number(prevYear.taux_de_rebond || 0) * 100 : null;
   var dureeM1 = prevMonth ? parseDuration(prevMonth.duree_moyenne) : null;
@@ -541,6 +546,7 @@ function renderKPIs(current, prevMonth, prevYear, labelM1, labelN1) {
   grid.innerHTML = 
     renderKPICard("Visites", formatNumber(visites), calcVariation(visites, visitesM1), calcVariation(visites, visitesN1), labelM1, labelN1, false) +
     renderKPICard("Pages vues", formatNumber(pagesVues), calcVariation(pagesVues, pagesM1), calcVariation(pagesVues, pagesN1), labelM1, labelN1, false) +
+    renderKPICard("Téléchargements", formatNumber(telechargements), calcVariation(telechargements, telechM1), calcVariation(telechargements, telechN1), labelM1, labelN1, false) +
     renderKPICard("Taux de rebond", tauxRebond.toFixed(1) + "%", calcVariation(tauxRebond, rebondM1), calcVariation(tauxRebond, rebondN1), labelM1, labelN1, true) +
     renderKPICard("Durée moyenne", formatDuration(duree), calcVariation(duree, dureeM1), calcVariation(duree, dureeN1), labelM1, labelN1, false) +
     renderKPICard("Actions moyennes", actionsMoy.toFixed(1), calcVariation(actionsMoy, actionsM1), calcVariation(actionsMoy, actionsN1), labelM1, labelN1, false);
@@ -556,12 +562,14 @@ function renderKPIsFromAgg(current, prev, labelPrev) {
 
   var visites = current.visites;
   var pagesVues = current.pages_vues;
+  var telechargements = current.telechargements || 0;
   var tauxRebond = current.taux_rebond * 100;
   var duree = current.duree_moyenne;
   var actionsMoy = current.actions_moy;
 
   var visitesP = prev ? prev.visites : null;
   var pagesP = prev ? prev.pages_vues : null;
+  var telechP = prev ? (prev.telechargements || 0) : null;
   var rebondP = prev ? prev.taux_rebond * 100 : null;
   var dureeP = prev ? prev.duree_moyenne : null;
   var actionsP = prev ? prev.actions_moy : null;
@@ -569,6 +577,7 @@ function renderKPIsFromAgg(current, prev, labelPrev) {
   grid.innerHTML = 
     renderKPICard("Visites", formatNumber(visites), null, calcVariation(visites, visitesP), "", labelPrev, false) +
     renderKPICard("Pages vues", formatNumber(pagesVues), null, calcVariation(pagesVues, pagesP), "", labelPrev, false) +
+    renderKPICard("Téléchargements", formatNumber(telechargements), null, calcVariation(telechargements, telechP), "", labelPrev, false) +
     renderKPICard("Taux de rebond", tauxRebond.toFixed(1) + "%", null, calcVariation(tauxRebond, rebondP), "", labelPrev, true) +
     renderKPICard("Durée moyenne", formatDuration(duree), null, calcVariation(duree, dureeP), "", labelPrev, false) +
     renderKPICard("Actions moyennes", actionsMoy.toFixed(1), null, calcVariation(actionsMoy, actionsP), "", labelPrev, false);

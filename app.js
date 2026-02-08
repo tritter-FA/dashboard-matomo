@@ -381,19 +381,24 @@ function updateDashboard() {
 }
 
 function updatePrintTitle(sheetName, periodValue) {
+  console.log("--- DEBUG TITRE ---");
+  console.log("Sheet reçue :", sheetName);
+  console.log("Période reçue :", periodValue);
+
   // 1. Définir le nom propre du site
-  var siteName = sheetName; // Valeur par défaut
+  var siteName = "Site Inconnu"; // Valeur par défaut pour voir si ça change
   if (sheetName === "Data FA") siteName = "France Assureurs";
   else if (sheetName === "Data AP") siteName = "Assurance Prévention";
   else if (sheetName === "Data RR") siteName = "Revue Risques";
   
+  console.log("Nom calculé :", siteName);
+  
   // 2. Définir la période lisible
-  var periodLabel = '';
+  var periodLabel = 'Date Inconnue';
   if (periodValue.indexOf("year-") === 0) {
     periodLabel = periodValue.replace("year-", "");
   } else if (periodValue.indexOf("month-") === 0) {
     var parts = periodValue.replace("month-", "").split("-");
-    // Sécurité si le split échoue
     if (parts.length >= 2) {
       var monthIndex = parseInt(parts[1]) - 1;
       if (MOIS_NOMS[monthIndex]) {
@@ -404,19 +409,22 @@ function updatePrintTitle(sheetName, periodValue) {
     }
   }
   
-  // 3. Mettre à jour le titre de l'onglet du navigateur
+  console.log("Période calculée :", periodLabel);
+
+  // 3. Mettre à jour le titre de l'onglet
   document.title = 'Dashboard - ' + siteName + ' - ' + periodLabel;
 
-  // 4. Mettre à jour le SPAN dans le H1
+  // 4. Mettre à jour le SPAN
   var printPeriod = document.getElementById("print-period");
   if (printPeriod) {
+    console.log("Élément SPAN trouvé. Injection du texte...");
     printPeriod.textContent = ' — ' + siteName + ' — ' + periodLabel;
-    // Si tu veux changer la couleur du texte dynamique (ex: gris plus clair) :
-    // printPeriod.style.color = "#666"; 
-    // printPeriod.style.fontWeight = "normal";
+    printPeriod.style.color = "black"; // Force la couleur pour être sûr
+    console.log("Texte injecté : " + printPeriod.textContent);
   } else {
-    console.warn("Attention : Élément <span id='print-period'> introuvable dans le HTML");
+    console.error("ERREUR CRITIQUE : Impossible de trouver <span id='print-period'> dans le HTML !");
   }
+  console.log("-------------------");
 }
 
 // ============ MONTHLY VIEW ============

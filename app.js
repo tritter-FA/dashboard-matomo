@@ -25,50 +25,46 @@ const SITE_CODES_REVERSE = {
   "Data RR": "RR"
 };
 
-// Palettes de couleurs par site
+// --- DÉFINITION DES PALETTES DE COULEURS ---
+
+// 1. France Assureurs (FA)
+const COULEURS_FA = ["#FA5629", "#007770", "#4984A9", "#68B0AC", "#FFB347", "#77DD77"];
+
+// 2. Assurance Prévention (AP)
+const COULEURS_AP = ["#fdc300", "#005da4", "#00a3bb", "#0587b5", "#f07d19", "#292e6b"];
+
+// 3. Revue Risques (RR) - NOUVELLE PALETTE
+const COULEURS_RR = [
+  "#302F58", // 1 - Bleu nuit (Dark Navy)
+  "#413A74", // 2 - Indigo
+  "#A35BA1", // 3 - Violet Orchidée
+  "#EC74A9", // 4 - Rose vif
+  "#F0B2A9", // 5 - Rose Pêche
+  "#F9CD98"  // 6 - Beige Doré
+];
+
+// Construction automatique des variantes (opacité)
 const PALETTES = {
   "Data FA": {
-    primary: ["#FA5629", "#007770", "#4984A9", "#68B0AC", "#FFB347", "#77DD77"],
-    secondary: ["#FA5629CC", "#007770CC", "#4984A9CC", "#68B0ACCC"],
-    tertiary: ["#FA562999", "#00777099", "#4984A999", "#68B0AC99"],
+    primary: COULEURS_FA,
+    secondary: COULEURS_FA.map(c => c + "CC"), // 80%
+    tertiary: COULEURS_FA.map(c => c + "99"),  // 60%
     accent: "#FA5629",
     dark: "#007770"
   },
   "Data AP": {
-    primary: ["#fdc300", "#005da4", "#00a3bb", "#0587b5", "#f07d19", "#292e6b"],
-    secondary: ["#0075b2", "#c13401", "#de5534", "#f07d19"],
-    tertiary: ["#b9348b", "#483d8b", "#292e6b", "#7dd5bd"],
+    primary: COULEURS_AP,
+    secondary: COULEURS_AP.map(c => c + "CC"),
+    tertiary: COULEURS_AP.map(c => c + "99"),
     accent: "#fdc300",
     dark: "#292e6b"
   },
-  // PALETTE REVUE RISQUES
   "Data RR": {
-    primary: [
-      "#23ACA5", // 1
-      "#50CBCA", // 2
-      "#d68b94", // 3
-      "#c9bb90", // 4
-      "#65589c", // 5
-      "#24688d"  // 6
-    ],
-    secondary: [
-      "#23ACA5CC",
-      "#50CBCACC",
-      "#d68b94CC",
-      "#c9bb90CC",
-      "#65589cCC",
-      "#24688dCC"
-    ],
-    tertiary: [
-      "#23ACA599",
-      "#50CBCA99",
-      "#d68b9499",
-      "#c9bb9099",
-      "#65589c99",
-      "#24688d99"
-    ],
-    accent: "#23ACA5",
-    dark: "#24688d"
+    primary: COULEURS_RR,
+    secondary: COULEURS_RR.map(c => c + "CC"),
+    tertiary: COULEURS_RR.map(c => c + "99"),
+    accent: "#A35BA1", // J'utilise le Violet (couleur 3) comme accent car le bleu nuit est très sombre
+    dark: "#302F58"    // Le bleu nuit pour le mode sombre
   }
 };
 
@@ -97,6 +93,17 @@ function getEvolutionColors(sheetName) {
 
 function getComparisonColors(sheetName) {
   const p = PALETTES[sheetName] || PALETTES["Data FA"];
+  
+  // MODIFICATION DEMANDÉE :
+  // Pour Revue Risques, on utilise Couleur 1 vs Couleur 3
+  if (sheetName === "Data RR") {
+    return {
+      current: p.primary[0], // #302F58 (Bleu Nuit)
+      previous: p.primary[2] // #A35BA1 (Violet) - Plus de contraste
+    };
+  }
+
+  // Pour les autres (FA / AP), comportement par défaut (Couleur 1 vs Couleur 2)
   return {
     current: p.primary[0],
     previous: p.primary[1]
@@ -418,7 +425,6 @@ function updateMonthlyView(sheetName, rows, ym) {
 
   renderKPIs(currentRow, prevMonthRow, prevYearRow, "M-1", MOIS_NOMS[parseInt(month)-1] + ' ' + (parseInt(year)-1));
 
-  // MODIFICATION ICI : Périphériques au lieu de devices
   document.getElementById("section-repartition").textContent = 'Sources de trafic et périphériques – ' + formatMonthYear(ym);
   
   renderSourcesPie(sheetName, ym, currentRow);
@@ -455,7 +461,6 @@ function updateYearlyView(sheetName, rows, year) {
 
   renderKPIsFromAgg(currentAgg, prevAgg, String(parseInt(year)-1));
 
-  // MODIFICATION ICI : Périphériques au lieu de devices
   document.getElementById("section-repartition").textContent = 'Sources de trafic et périphériques – Année ' + year;
   
   renderSourcesPieFromAgg(sheetName, year, currentAgg);

@@ -38,12 +38,16 @@ const PALETTES = {
     accent: "#fdc300",
     dark: "#292e6b"
   },
+  // <--- NOUVELLE PALETTE REVUE RISQUES
   "Data RR": {
-    primary: ["#D32F2F", "#5D4037", "#757575", "#607D8B", "#FF5252", "#FF9800"],
-    secondary: ["#D32F2FCC", "#5D4037CC", "#757575CC", "#607D8BCC"],
-    tertiary: ["#D32F2F99", "#5D403799", "#75757599", "#607D8B99"],
-    accent: "#D32F2F",
-    dark: "#B71C1C"
+    // 1:Teal, 2:LightTurquoise, 3:Pink, 4:Gold, 5:Purple, 6:Blue
+    primary: ["#23ACA5", "#50CBCA", "#d68b94", "#c9bb90", "#65589c", "#24688d"],
+    // Versions avec transparence (CC = 80%)
+    secondary: ["#23ACA5CC", "#50CBCACC", "#d68b94CC", "#c9bb90CC", "#65589cCC", "#24688dCC"],
+    // Versions avec plus de transparence (99 = 60%)
+    tertiary: ["#23ACA599", "#50CBCA99", "#d68b9499", "#c9bb9099", "#65589c99", "#24688d99"],
+    accent: "#23ACA5", // Couleur principale (Teal)
+    dark: "#24688d"    // Couleur sombre (Blue)
   }
 };
 
@@ -883,8 +887,8 @@ function renderComparisonChart(rows, year, sheetName) {
 function updateTopPages(sheetName, period) {
   var table = document.getElementById("top-pages-table");
   var title = document.getElementById("section-top-pages");
-  // On récupère le conteneur parent (la div .card qui contient le tableau)
-  // Fallback sur parentElement si la structure HTML est simple
+  // On récupère le conteneur parent (la div .card)
+  // Fallback sur parentElement si .closest ne trouve rien (structure simple)
   var container = table ? (table.closest ? table.closest('.card') : table.parentElement) : null;
 
   // --- CAS REVUE RISQUES : ON CACHE TOUT LE BLOC ---
@@ -892,18 +896,16 @@ function updateTopPages(sheetName, period) {
     if (title) title.style.display = "none";
     if (table) table.style.display = "none";
     if (container) container.style.display = "none"; // Cache la boîte blanche entière
-    return; // On arrête là
+    return;
   }
 
   // --- CAS AUTRES SITES : ON RÉAFFICHE TOUT ---
   if (title) title.style.display = "block";
   if (table) table.style.display = "table";
-  if (container) container.style.display = "block"; // On réaffiche la boîte
+  if (container) container.style.display = "block";
   
   var topPages = getTopPagesForSite(sheetName);
-  
   var isYear = period.length === 4;
-  
   var filtered;
   if (isYear) {
     filtered = topPages.filter(function(row) { return String(row.date) === period; });
@@ -922,6 +924,7 @@ function updateTopPages(sheetName, period) {
   if (filtered.length === 0) {
     thead.innerHTML = "";
     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">Aucune donnée Top Pages pour cette période</td></tr>';
+    // On met quand même à jour le titre
     var periodLabel = isYear ? ('Année ' + period) : formatMonthYear(period);
     if (title) title.textContent = '🏆 Top 10 des pages les plus consultées – ' + periodLabel;
     return;

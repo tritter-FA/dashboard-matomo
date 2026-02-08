@@ -12,29 +12,39 @@ let comparisonChart = null;
 // Mapping des codes hash vers les noms de sheets
 const SITE_CODES = {
   "FA": "Data FA",
-  "AP": "Data AP"
+  "AP": "Data AP",
+  "RR": "Data RR" // <--- AJOUT
 };
 
 const SITE_CODES_REVERSE = {
   "Data FA": "FA",
-  "Data AP": "AP"
+  "Data AP": "AP",
+  "Data RR": "RR" // <--- AJOUT
 };
 
 // Palettes de couleurs par site
 const PALETTES = {
   "Data FA": {
-    primary: ["#FA5629", "#007770", "#4984A9", "#68B0AC", "#FFB347", "#77DD77"], // Ajouté couleurs supplémentaires
+    primary: ["#FA5629", "#007770", "#4984A9", "#68B0AC", "#FFB347", "#77DD77"],
     secondary: ["#FA5629CC", "#007770CC", "#4984A9CC", "#68B0ACCC"],
     tertiary: ["#FA562999", "#00777099", "#4984A999", "#68B0AC99"],
     accent: "#FA5629",
     dark: "#007770"
   },
   "Data AP": {
-    primary: ["#fdc300", "#005da4", "#00a3bb", "#0587b5", "#f07d19", "#292e6b"], // Ajouté couleurs supplémentaires
+    primary: ["#fdc300", "#005da4", "#00a3bb", "#0587b5", "#f07d19", "#292e6b"],
     secondary: ["#0075b2", "#c13401", "#de5534", "#f07d19"],
     tertiary: ["#b9348b", "#483d8b", "#292e6b", "#7dd5bd"],
     accent: "#fdc300",
     dark: "#292e6b"
+  },
+  // <--- AJOUT PALETTE REVUE RISQUES (Rouge/Gris)
+  "Data RR": {
+    primary: ["#D32F2F", "#5D4037", "#757575", "#607D8B", "#FF5252", "#FF9800"],
+    secondary: ["#D32F2FCC", "#5D4037CC", "#757575CC", "#607D8BCC"],
+    tertiary: ["#D32F2F99", "#5D403799", "#75757599", "#607D8B99"],
+    accent: "#D32F2F",
+    dark: "#B71C1C"
   }
 };
 
@@ -73,7 +83,8 @@ function parseHash() {
   var hash = window.location.hash.replace('#', '');
   if (!hash) return null;
   
-  var match = hash.match(/^(FA|AP)-(\d{4})(?:-(\d{2}))?$/);
+  // Format obligatoire : SITE-ANNEE ou SITE-ANNEE-MOIS (ex: RR-2025)
+  var match = hash.match(/^(FA|AP|RR)-(\d{4})(?:-(\d{2}))?$/); // <--- AJOUT RR
   if (!match) return null;
   
   var siteCode = match[1];
@@ -369,7 +380,12 @@ function updateDashboard() {
 }
 
 function updatePrintTitle(sheetName, periodValue) {
-  var siteName = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
+  // GESTION DU LABEL POUR REVUE RISQUES
+  var siteName = "";
+  if (sheetName === "Data FA") siteName = "France Assureurs";
+  else if (sheetName === "Data AP") siteName = "Assurance Prévention";
+  else if (sheetName === "Data RR") siteName = "Revue Risques"; // <--- AJOUT
+  
   var periodLabel = '';
   
   if (periodValue.indexOf("year-") === 0) {
@@ -457,7 +473,7 @@ function aggregateRows(rows) {
   var agg = {
     visites: 0,
     pages_vues: 0,
-    telechargements: 0, // <--- AJOUT
+    telechargements: 0,
     taux_rebond_sum: 0,
     duree_sum: 0,
     actions_moy_sum: 0,
@@ -465,7 +481,7 @@ function aggregateRows(rows) {
     moteurs_de_recherche: 0,
     entrees_directes: 0,
     sites_externes: 0,
-    assistants_ia: 0, // <--- AJOUT
+    assistants_ia: 0,
     reseaux_sociaux: 0,
     campagnes: 0,
     ordinateurs: 0,
@@ -475,14 +491,14 @@ function aggregateRows(rows) {
   rows.forEach(function(r) {
     agg.visites += Number(r.visites || 0);
     agg.pages_vues += Number(r.pages_vues || 0);
-    agg.telechargements += Number(r.telechargements || 0); // <--- AJOUT
+    agg.telechargements += Number(r.telechargements || 0);
     agg.taux_rebond_sum += Number(r.taux_de_rebond || 0);
     agg.duree_sum += parseDuration(r.duree_moyenne);
     agg.actions_moy_sum += Number(r.actions_moy || 0);
     agg.moteurs_de_recherche += Number(r.moteurs_de_recherche || 0);
     agg.entrees_directes += Number(r.entrees_directes || 0);
     agg.sites_externes += Number(r.sites_externes || 0);
-    agg.assistants_ia += Number(r.assistants_ia || 0); // <--- AJOUT
+    agg.assistants_ia += Number(r.assistants_ia || 0);
     agg.reseaux_sociaux += Number(r.reseaux_sociaux || 0);
     agg.campagnes += Number(r.campagnes || 0);
     agg.ordinateurs += Number(r.ordinateurs || 0);
@@ -498,15 +514,11 @@ function aggregateRows(rows) {
 // ============ RENDER KPIs ============
 function renderKPIs(current, prevMonth, prevYear, labelM1, labelN1) {
   var grid = document.getElementById("kpis-grid");
-  
-  if (!current) {
-    grid.innerHTML = '<div class="kpi-card">Aucune donnée</div>';
-    return;
-  }
+  if (!current) { grid.innerHTML = '<div class="kpi-card">Aucune donnée</div>'; return; }
 
   var visites = Number(current.visites || 0);
   var pagesVues = Number(current.pages_vues || 0);
-  var telechargements = Number(current.telechargements || 0); // <--- AJOUT
+  var telechargements = Number(current.telechargements || 0);
   var tauxRebond = Number(current.taux_de_rebond || 0) * 100;
   var duree = parseDuration(current.duree_moyenne);
   var actionsMoy = Number(current.actions_moy || 0);
@@ -516,8 +528,8 @@ function renderKPIs(current, prevMonth, prevYear, labelM1, labelN1) {
   var pagesM1 = prevMonth ? Number(prevMonth.pages_vues || 0) : null;
   var pagesN1 = prevYear ? Number(prevYear.pages_vues || 0) : null;
   
-  var telechM1 = prevMonth ? Number(prevMonth.telechargements || 0) : null; // <--- AJOUT
-  var telechN1 = prevYear ? Number(prevYear.telechargements || 0) : null;   // <--- AJOUT
+  var telechM1 = prevMonth ? Number(prevMonth.telechargements || 0) : null;
+  var telechN1 = prevYear ? Number(prevYear.telechargements || 0) : null;
 
   var rebondM1 = prevMonth ? Number(prevMonth.taux_de_rebond || 0) * 100 : null;
   var rebondN1 = prevYear ? Number(prevYear.taux_de_rebond || 0) * 100 : null;
@@ -532,27 +544,23 @@ function renderKPIs(current, prevMonth, prevYear, labelM1, labelN1) {
     renderKPICard("Taux de rebond", tauxRebond.toFixed(1) + "%", calcVariation(tauxRebond, rebondM1), calcVariation(tauxRebond, rebondN1), labelM1, labelN1, true) +
     renderKPICard("Durée moyenne", formatDuration(duree), calcVariation(duree, dureeM1), calcVariation(duree, dureeN1), labelM1, labelN1, false) +
     renderKPICard("Actions moyennes", actionsMoy.toFixed(1), calcVariation(actionsMoy, actionsM1), calcVariation(actionsMoy, actionsN1), labelM1, labelN1, false) +
-    renderKPICard("Téléchargements", formatNumber(telechargements), calcVariation(telechargements, telechM1), calcVariation(telechargements, telechN1), labelM1, labelN1, false); // <--- AJOUT
+    renderKPICard("Téléchargements", formatNumber(telechargements), calcVariation(telechargements, telechM1), calcVariation(telechargements, telechN1), labelM1, labelN1, false);
 }
 
 function renderKPIsFromAgg(current, prev, labelPrev) {
   var grid = document.getElementById("kpis-grid");
-  
-  if (!current) {
-    grid.innerHTML = '<div class="kpi-card">Aucune donnée</div>';
-    return;
-  }
+  if (!current) { grid.innerHTML = '<div class="kpi-card">Aucune donnée</div>'; return; }
 
   var visites = current.visites;
   var pagesVues = current.pages_vues;
-  var telechargements = current.telechargements || 0; // <--- AJOUT
+  var telechargements = current.telechargements || 0;
   var tauxRebond = current.taux_rebond * 100;
   var duree = current.duree_moyenne;
   var actionsMoy = current.actions_moy;
 
   var visitesP = prev ? prev.visites : null;
   var pagesP = prev ? prev.pages_vues : null;
-  var telechP = prev ? (prev.telechargements || 0) : null; // <--- AJOUT
+  var telechP = prev ? (prev.telechargements || 0) : null;
   var rebondP = prev ? prev.taux_rebond * 100 : null;
   var dureeP = prev ? prev.duree_moyenne : null;
   var actionsP = prev ? prev.actions_moy : null;
@@ -563,7 +571,7 @@ function renderKPIsFromAgg(current, prev, labelPrev) {
     renderKPICard("Taux de rebond", tauxRebond.toFixed(1) + "%", null, calcVariation(tauxRebond, rebondP), "", labelPrev, true) +
     renderKPICard("Durée moyenne", formatDuration(duree), null, calcVariation(duree, dureeP), "", labelPrev, false) +
     renderKPICard("Actions moyennes", actionsMoy.toFixed(1), null, calcVariation(actionsMoy, actionsP), "", labelPrev, false) +
-    renderKPICard("Téléchargements", formatNumber(telechargements), null, calcVariation(telechargements, telechP), "", labelPrev, false); // <--- AJOUT
+    renderKPICard("Téléchargements", formatNumber(telechargements), null, calcVariation(telechargements, telechP), "", labelPrev, false);
 }
 
 function renderKPICard(title, value, varM1, varN1, labelM1, labelN1, invertColors) {
@@ -607,6 +615,8 @@ function renderSourcesPie(sheetName, ym, row) {
   }
 
   var siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
+  if (sheetName === "Data RR") siteLabel = "Revue Risques"; // <--- AJOUT LABEL CHART
+
   var m = ym.match(/^(\d{4})-(\d{2})$/);
   var monthLabel = m ? (m[2] + '/' + m[1]) : ym;
 
@@ -614,7 +624,7 @@ function renderSourcesPie(sheetName, ym, row) {
     Number(row.moteurs_de_recherche || 0),
     Number(row.entrees_directes || 0),
     Number(row.sites_externes || 0),
-    Number(row.assistants_ia || 0), // <--- AJOUT
+    Number(row.assistants_ia || 0),
     Number(row.reseaux_sociaux || 0),
     Number(row.campagnes || 0)
   ];
@@ -640,7 +650,9 @@ function renderSourcesPieFromAgg(sheetName, label, agg) {
   }
 
   var siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
-  var data = [agg.moteurs_de_recherche, agg.entrees_directes, agg.sites_externes, agg.assistants_ia, agg.reseaux_sociaux, agg.campagnes]; // <--- AJOUT
+  if (sheetName === "Data RR") siteLabel = "Revue Risques"; // <--- AJOUT LABEL CHART
+
+  var data = [agg.moteurs_de_recherche, agg.entrees_directes, agg.sites_externes, agg.assistants_ia, agg.reseaux_sociaux, agg.campagnes];
 
   sourcesChart = new Chart(ctx, {
     type: "pie",
@@ -663,6 +675,7 @@ function renderDevicesPie(sheetName, ym, row) {
   }
 
   var siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
+  if (sheetName === "Data RR") siteLabel = "Revue Risques"; // <--- AJOUT LABEL CHART
   var m = ym.match(/^(\d{4})-(\d{2})$/);
   var monthLabel = m ? (m[2] + '/' + m[1]) : ym;
 
@@ -695,6 +708,7 @@ function renderDevicesPieFromAgg(sheetName, label, agg) {
   }
 
   var siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
+  if (sheetName === "Data RR") siteLabel = "Revue Risques"; // <--- AJOUT LABEL CHART
   var data = [agg.ordinateurs, agg.smartphone, agg.tablettes];
   var colors = PALETTES[sheetName] ? PALETTES[sheetName].primary : PALETTES["Data FA"].primary;
 
@@ -865,6 +879,14 @@ function renderComparisonChart(rows, year, sheetName) {
 
 // ============ TOP PAGES ============
 function updateTopPages(sheetName, period) {
+  // <--- CONDITION POUR CACHER TOP 10 SUR REVUE RISQUES
+  if (sheetName === "Data RR") {
+    document.getElementById("section-top-pages").textContent = ""; // Cache le titre
+    document.querySelector("#top-pages-table thead").innerHTML = ""; // Vide le header
+    document.querySelector("#top-pages-table tbody").innerHTML = ""; // Vide le body
+    return; // Arrête la fonction ici
+  }
+  
   var topPages = getTopPagesForSite(sheetName);
   
   var isYear = period.length === 4;

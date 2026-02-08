@@ -381,27 +381,42 @@ function updateDashboard() {
 }
 
 function updatePrintTitle(sheetName, periodValue) {
-  var siteName = "";
+  // 1. Définir le nom propre du site
+  var siteName = sheetName; // Valeur par défaut
   if (sheetName === "Data FA") siteName = "France Assureurs";
   else if (sheetName === "Data AP") siteName = "Assurance Prévention";
   else if (sheetName === "Data RR") siteName = "Revue Risques";
   
+  // 2. Définir la période lisible
   var periodLabel = '';
-  
   if (periodValue.indexOf("year-") === 0) {
     periodLabel = periodValue.replace("year-", "");
   } else if (periodValue.indexOf("month-") === 0) {
     var parts = periodValue.replace("month-", "").split("-");
-    var monthIndex = parseInt(parts[1]) - 1;
-    periodLabel = MOIS_NOMS[monthIndex] + ' ' + parts[0];
+    // Sécurité si le split échoue
+    if (parts.length >= 2) {
+      var monthIndex = parseInt(parts[1]) - 1;
+      if (MOIS_NOMS[monthIndex]) {
+        periodLabel = MOIS_NOMS[monthIndex] + ' ' + parts[0];
+      } else {
+        periodLabel = parts[1] + '/' + parts[0];
+      }
+    }
   }
   
+  // 3. Mettre à jour le titre de l'onglet du navigateur
+  document.title = 'Dashboard - ' + siteName + ' - ' + periodLabel;
+
+  // 4. Mettre à jour le SPAN dans le H1
   var printPeriod = document.getElementById("print-period");
   if (printPeriod) {
     printPeriod.textContent = ' — ' + siteName + ' — ' + periodLabel;
+    // Si tu veux changer la couleur du texte dynamique (ex: gris plus clair) :
+    // printPeriod.style.color = "#666"; 
+    // printPeriod.style.fontWeight = "normal";
+  } else {
+    console.warn("Attention : Élément <span id='print-period'> introuvable dans le HTML");
   }
-  
-  document.title = 'Dashboard Matomo - ' + siteName + ' - ' + periodLabel;
 }
 
 // ============ MONTHLY VIEW ============

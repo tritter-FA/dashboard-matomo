@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Matomo - France Assureurs</title>
+  <title>Reporting Sites - Tableau de bord</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
@@ -37,11 +37,9 @@
     <div class="loading" id="loading">Chargement des données...</div>
 
     <div id="dashboard-content" style="display:none;">
-      <!-- KPIs -->
       <h2 class="section-title">Données principales</h2>
       <div class="kpis-grid" id="kpis-grid"></div>
 
-      <!-- Graphiques camemberts -->
       <h2 class="section-title" id="section-repartition">Sources de trafic et devices</h2>
       <div class="charts-grid">
         <div class="chart-container">
@@ -52,16 +50,16 @@
         </div>
       </div>
 
-      <!-- Top Pages -->
-      <h2 class="section-title" id="section-top-pages">🏆 Top 10 des pages les plus consultées</h2>
-      <div class="table-container">
-        <table id="top-pages-table" class="top-pages-table">
-          <thead></thead>
-          <tbody></tbody>
-        </table>
+      <div id="top-pages-block">
+        <h2 class="section-title" id="section-top-pages">🏆 Top 10 des pages les plus consultées</h2>
+        <div class="table-container">
+          <table id="top-pages-table" class="top-pages-table">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </div>
 
-      <!-- Graphique évolution -->
       <h2 class="section-title">Évolution dans le temps</h2>
       <div class="charts-grid">
         <div class="chart-container chart-full">
@@ -69,7 +67,6 @@
         </div>
       </div>
 
-      <!-- Comparaison N/N-1 -->
       <div id="comparison-section" style="display:none;">
         <h2 class="section-title" id="section-comparison">Comparaison avec l'année précédente</h2>
         <div class="charts-grid">
@@ -83,5 +80,4 @@
 
   <script src="app.js"></script>
 </body>
-
 </html>

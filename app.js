@@ -38,16 +38,13 @@ const PALETTES = {
     accent: "#fdc300",
     dark: "#292e6b"
   },
-  // <--- NOUVELLE PALETTE REVUE RISQUES
+  // PALETTE REVUE RISQUES (Teal/Turquoise)
   "Data RR": {
-    // 1:Teal, 2:LightTurquoise, 3:Pink, 4:Gold, 5:Purple, 6:Blue
     primary: ["#23ACA5", "#50CBCA", "#d68b94", "#c9bb90", "#65589c", "#24688d"],
-    // Versions avec transparence (CC = 80%)
     secondary: ["#23ACA5CC", "#50CBCACC", "#d68b94CC", "#c9bb90CC", "#65589cCC", "#24688dCC"],
-    // Versions avec plus de transparence (99 = 60%)
     tertiary: ["#23ACA599", "#50CBCA99", "#d68b9499", "#c9bb9099", "#65589c99", "#24688d99"],
-    accent: "#23ACA5", // Couleur principale (Teal)
-    dark: "#24688d"    // Couleur sombre (Blue)
+    accent: "#23ACA5",
+    dark: "#24688d"
   }
 };
 
@@ -368,6 +365,7 @@ function updateDashboard() {
   var periodValue = document.getElementById("period-select").value;
   var rows = getRowsForSheet(sheetName);
 
+  // C'est cette fonction qui gère le titre.
   updatePrintTitle(sheetName, periodValue);
 
   if (periodValue.indexOf("year-") === 0) {
@@ -380,21 +378,16 @@ function updateDashboard() {
   }
 }
 
+// === FIX TITRE : VERSION ROBUSTE ===
 function updatePrintTitle(sheetName, periodValue) {
-  console.log("--- DEBUG TITRE ---");
-  console.log("Sheet reçue :", sheetName);
-  console.log("Période reçue :", periodValue);
-
-  // 1. Définir le nom propre du site
-  var siteName = "Site Inconnu"; // Valeur par défaut pour voir si ça change
+  // 1. Définition du nom du site
+  var siteName = sheetName;
   if (sheetName === "Data FA") siteName = "France Assureurs";
   else if (sheetName === "Data AP") siteName = "Assurance Prévention";
   else if (sheetName === "Data RR") siteName = "Revue Risques";
   
-  console.log("Nom calculé :", siteName);
-  
-  // 2. Définir la période lisible
-  var periodLabel = 'Date Inconnue';
+  // 2. Définition de la période
+  var periodLabel = '';
   if (periodValue.indexOf("year-") === 0) {
     periodLabel = periodValue.replace("year-", "");
   } else if (periodValue.indexOf("month-") === 0) {
@@ -409,22 +402,18 @@ function updatePrintTitle(sheetName, periodValue) {
     }
   }
   
-  console.log("Période calculée :", periodLabel);
-
-  // 3. Mettre à jour le titre de l'onglet
+  // 3. Mise à jour Onglet Navigateur
   document.title = 'Dashboard - ' + siteName + ' - ' + periodLabel;
 
-  // 4. Mettre à jour le SPAN
+  // 4. Mise à jour du SPAN dans le H1
   var printPeriod = document.getElementById("print-period");
   if (printPeriod) {
-    console.log("Élément SPAN trouvé. Injection du texte...");
     printPeriod.textContent = ' — ' + siteName + ' — ' + periodLabel;
-    printPeriod.style.color = "black"; // Force la couleur pour être sûr
-    console.log("Texte injecté : " + printPeriod.textContent);
+    console.log("✅ TITRE MIS À JOUR : " + printPeriod.textContent);
   } else {
-    console.error("ERREUR CRITIQUE : Impossible de trouver <span id='print-period'> dans le HTML !");
+    // Si l'élément n'existe pas, on loggue une erreur visible
+    console.error("❌ ERREUR : Élément <span id='print-period'> non trouvé dans le HTML");
   }
-  console.log("-------------------");
 }
 
 // ============ MONTHLY VIEW ============
@@ -537,11 +526,7 @@ function aggregateRows(rows) {
 // ============ RENDER KPIs ============
 function renderKPIs(current, prevMonth, prevYear, labelM1, labelN1) {
   var grid = document.getElementById("kpis-grid");
-  
-  if (!current) {
-    grid.innerHTML = '<div class="kpi-card">Aucune donnée</div>';
-    return;
-  }
+  if (!current) { grid.innerHTML = '<div class="kpi-card">Aucune donnée</div>'; return; }
 
   var visites = Number(current.visites || 0);
   var pagesVues = Number(current.pages_vues || 0);
@@ -574,11 +559,7 @@ function renderKPIs(current, prevMonth, prevYear, labelM1, labelN1) {
 
 function renderKPIsFromAgg(current, prev, labelPrev) {
   var grid = document.getElementById("kpis-grid");
-  
-  if (!current) {
-    grid.innerHTML = '<div class="kpi-card">Aucune donnée</div>';
-    return;
-  }
+  if (!current) { grid.innerHTML = '<div class="kpi-card">Aucune donnée</div>'; return; }
 
   var visites = current.visites;
   var pagesVues = current.pages_vues;

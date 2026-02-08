@@ -879,16 +879,27 @@ function renderComparisonChart(rows, year, sheetName) {
 
 // ============ TOP PAGES ============
 function updateTopPages(sheetName, period) {
-  // <--- CONDITION POUR CACHER TOP 10 SUR REVUE RISQUES
+  var table = document.getElementById("top-pages-table");
+  var title = document.getElementById("section-top-pages");
+  // On cible le parent direct du tableau (la boîte blanche "card") pour la cacher entièrement
+  var container = table ? table.parentElement : null;
+
+  // --- CAS REVUE RISQUES : ON CACHE TOUT ---
   if (sheetName === "Data RR") {
-    document.getElementById("section-top-pages").textContent = ""; // Cache le titre
-    document.querySelector("#top-pages-table thead").innerHTML = ""; // Vide le header
-    document.querySelector("#top-pages-table tbody").innerHTML = ""; // Vide le body
-    return; // Arrête la fonction ici
+    if (title) title.style.display = "none";
+    if (table) table.style.display = "none";
+    if (container) container.style.display = "none"; // C'est ça qui enlève la barre blanche
+    return; // On arrête là
   }
+
+  // --- CAS FA / AP : ON RÉAFFICHE (IMPORTANT) ---
+  // Si on ne fait pas ça, le tableau restera caché quand on reviendra sur FA/AP
+  if (title) title.style.display = "block";
+  if (table) table.style.display = "table";
+  if (container) container.style.display = "block"; // On réaffiche la boîte blanche
   
+  // --- LA LOGIQUE NORMALE CONTINUE ---
   var topPages = getTopPagesForSite(sheetName);
-  
   var isYear = period.length === 4;
   
   var filtered;
@@ -909,11 +920,14 @@ function updateTopPages(sheetName, period) {
   if (filtered.length === 0) {
     thead.innerHTML = "";
     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">Aucune donnée Top Pages pour cette période</td></tr>';
+    
+    var periodLabel = isYear ? ('Année ' + period) : formatMonthYear(period);
+    if (title) title.textContent = '🏆 Top 10 des pages les plus consultées – ' + periodLabel;
     return;
   }
   
   var periodLabel = isYear ? ('Année ' + period) : formatMonthYear(period);
-  document.getElementById("section-top-pages").textContent = '🏆 Top 10 des pages les plus consultées – ' + periodLabel;
+  if (title) title.textContent = '🏆 Top 10 des pages les plus consultées – ' + periodLabel;
   
   thead.innerHTML = '<tr>' +
     '<th class="position">#</th>' +

@@ -418,11 +418,12 @@ function updateMonthlyView(sheetName, rows, ym) {
 
   renderKPIs(currentRow, prevMonthRow, prevYearRow, "M-1", MOIS_NOMS[parseInt(month)-1] + ' ' + (parseInt(year)-1));
 
-  document.getElementById("section-repartition").textContent = 'Sources de trafic et devices – ' + formatMonthYear(ym);
+  // MODIFICATION ICI : Périphériques au lieu de devices
+  document.getElementById("section-repartition").textContent = 'Sources de trafic et périphériques – ' + formatMonthYear(ym);
+  
   renderSourcesPie(sheetName, ym, currentRow);
   renderDevicesPie(sheetName, ym, currentRow);
 
-  // NOUVEAU: Rendu des tableaux de données
   renderSourcesTable(currentRow);
   renderDevicesTable(currentRow);
 
@@ -454,11 +455,12 @@ function updateYearlyView(sheetName, rows, year) {
 
   renderKPIsFromAgg(currentAgg, prevAgg, String(parseInt(year)-1));
 
-  document.getElementById("section-repartition").textContent = 'Sources de trafic et devices – Année ' + year;
+  // MODIFICATION ICI : Périphériques au lieu de devices
+  document.getElementById("section-repartition").textContent = 'Sources de trafic et périphériques – Année ' + year;
+  
   renderSourcesPieFromAgg(sheetName, year, currentAgg);
   renderDevicesPieFromAgg(sheetName, year, currentAgg);
 
-  // NOUVEAU: Rendu des tableaux de données (agrégés)
   renderSourcesTable(currentAgg);
   renderDevicesTable(currentAgg);
 

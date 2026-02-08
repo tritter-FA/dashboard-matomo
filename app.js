@@ -13,13 +13,13 @@ let comparisonChart = null;
 const SITE_CODES = {
   "FA": "Data FA",
   "AP": "Data AP",
-  "RR": "Data RR" // <--- AJOUT
+  "RR": "Data RR"
 };
 
 const SITE_CODES_REVERSE = {
   "Data FA": "FA",
   "Data AP": "AP",
-  "Data RR": "RR" // <--- AJOUT
+  "Data RR": "RR"
 };
 
 // Palettes de couleurs par site
@@ -38,7 +38,6 @@ const PALETTES = {
     accent: "#fdc300",
     dark: "#292e6b"
   },
-  // <--- AJOUT PALETTE REVUE RISQUES (Rouge/Gris)
   "Data RR": {
     primary: ["#D32F2F", "#5D4037", "#757575", "#607D8B", "#FF5252", "#FF9800"],
     secondary: ["#D32F2FCC", "#5D4037CC", "#757575CC", "#607D8BCC"],
@@ -83,8 +82,7 @@ function parseHash() {
   var hash = window.location.hash.replace('#', '');
   if (!hash) return null;
   
-  // Format obligatoire : SITE-ANNEE ou SITE-ANNEE-MOIS (ex: RR-2025)
-  var match = hash.match(/^(FA|AP|RR)-(\d{4})(?:-(\d{2}))?$/); // <--- AJOUT RR
+  var match = hash.match(/^(FA|AP|RR)-(\d{4})(?:-(\d{2}))?$/);
   if (!match) return null;
   
   var siteCode = match[1];
@@ -169,7 +167,6 @@ function getCachedData() {
     var cachedMonth = localStorage.getItem(CACHE_MONTH_KEY);
     var currentMonth = getCurrentMonth();
     
-    // Si le cache est d'un mois différent, on l'invalide
     if (cachedMonth !== currentMonth) {
       localStorage.removeItem(CACHE_KEY);
       localStorage.removeItem(CACHE_MONTH_KEY);
@@ -380,11 +377,10 @@ function updateDashboard() {
 }
 
 function updatePrintTitle(sheetName, periodValue) {
-  // GESTION DU LABEL POUR REVUE RISQUES
   var siteName = "";
   if (sheetName === "Data FA") siteName = "France Assureurs";
   else if (sheetName === "Data AP") siteName = "Assurance Prévention";
-  else if (sheetName === "Data RR") siteName = "Revue Risques"; // <--- AJOUT
+  else if (sheetName === "Data RR") siteName = "Revue Risques";
   
   var periodLabel = '';
   
@@ -514,7 +510,11 @@ function aggregateRows(rows) {
 // ============ RENDER KPIs ============
 function renderKPIs(current, prevMonth, prevYear, labelM1, labelN1) {
   var grid = document.getElementById("kpis-grid");
-  if (!current) { grid.innerHTML = '<div class="kpi-card">Aucune donnée</div>'; return; }
+  
+  if (!current) {
+    grid.innerHTML = '<div class="kpi-card">Aucune donnée</div>';
+    return;
+  }
 
   var visites = Number(current.visites || 0);
   var pagesVues = Number(current.pages_vues || 0);
@@ -527,10 +527,8 @@ function renderKPIs(current, prevMonth, prevYear, labelM1, labelN1) {
   var visitesN1 = prevYear ? Number(prevYear.visites || 0) : null;
   var pagesM1 = prevMonth ? Number(prevMonth.pages_vues || 0) : null;
   var pagesN1 = prevYear ? Number(prevYear.pages_vues || 0) : null;
-  
   var telechM1 = prevMonth ? Number(prevMonth.telechargements || 0) : null;
   var telechN1 = prevYear ? Number(prevYear.telechargements || 0) : null;
-
   var rebondM1 = prevMonth ? Number(prevMonth.taux_de_rebond || 0) * 100 : null;
   var rebondN1 = prevYear ? Number(prevYear.taux_de_rebond || 0) * 100 : null;
   var dureeM1 = prevMonth ? parseDuration(prevMonth.duree_moyenne) : null;
@@ -549,7 +547,11 @@ function renderKPIs(current, prevMonth, prevYear, labelM1, labelN1) {
 
 function renderKPIsFromAgg(current, prev, labelPrev) {
   var grid = document.getElementById("kpis-grid");
-  if (!current) { grid.innerHTML = '<div class="kpi-card">Aucune donnée</div>'; return; }
+  
+  if (!current) {
+    grid.innerHTML = '<div class="kpi-card">Aucune donnée</div>';
+    return;
+  }
 
   var visites = current.visites;
   var pagesVues = current.pages_vues;
@@ -615,7 +617,7 @@ function renderSourcesPie(sheetName, ym, row) {
   }
 
   var siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
-  if (sheetName === "Data RR") siteLabel = "Revue Risques"; // <--- AJOUT LABEL CHART
+  if (sheetName === "Data RR") siteLabel = "Revue Risques";
 
   var m = ym.match(/^(\d{4})-(\d{2})$/);
   var monthLabel = m ? (m[2] + '/' + m[1]) : ym;
@@ -650,7 +652,7 @@ function renderSourcesPieFromAgg(sheetName, label, agg) {
   }
 
   var siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
-  if (sheetName === "Data RR") siteLabel = "Revue Risques"; // <--- AJOUT LABEL CHART
+  if (sheetName === "Data RR") siteLabel = "Revue Risques";
 
   var data = [agg.moteurs_de_recherche, agg.entrees_directes, agg.sites_externes, agg.assistants_ia, agg.reseaux_sociaux, agg.campagnes];
 
@@ -675,7 +677,7 @@ function renderDevicesPie(sheetName, ym, row) {
   }
 
   var siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
-  if (sheetName === "Data RR") siteLabel = "Revue Risques"; // <--- AJOUT LABEL CHART
+  if (sheetName === "Data RR") siteLabel = "Revue Risques";
   var m = ym.match(/^(\d{4})-(\d{2})$/);
   var monthLabel = m ? (m[2] + '/' + m[1]) : ym;
 
@@ -708,7 +710,7 @@ function renderDevicesPieFromAgg(sheetName, label, agg) {
   }
 
   var siteLabel = sheetName === "Data FA" ? "France Assureurs" : "Assurance Prévention";
-  if (sheetName === "Data RR") siteLabel = "Revue Risques"; // <--- AJOUT LABEL CHART
+  if (sheetName === "Data RR") siteLabel = "Revue Risques";
   var data = [agg.ordinateurs, agg.smartphone, agg.tablettes];
   var colors = PALETTES[sheetName] ? PALETTES[sheetName].primary : PALETTES["Data FA"].primary;
 
@@ -881,25 +883,25 @@ function renderComparisonChart(rows, year, sheetName) {
 function updateTopPages(sheetName, period) {
   var table = document.getElementById("top-pages-table");
   var title = document.getElementById("section-top-pages");
-  // On cible le parent direct du tableau (la boîte blanche "card") pour la cacher entièrement
-  var container = table ? table.parentElement : null;
+  // On récupère le conteneur parent (la div .card qui contient le tableau)
+  // Fallback sur parentElement si la structure HTML est simple
+  var container = table ? (table.closest ? table.closest('.card') : table.parentElement) : null;
 
-  // --- CAS REVUE RISQUES : ON CACHE TOUT ---
+  // --- CAS REVUE RISQUES : ON CACHE TOUT LE BLOC ---
   if (sheetName === "Data RR") {
     if (title) title.style.display = "none";
     if (table) table.style.display = "none";
-    if (container) container.style.display = "none"; // C'est ça qui enlève la barre blanche
+    if (container) container.style.display = "none"; // Cache la boîte blanche entière
     return; // On arrête là
   }
 
-  // --- CAS FA / AP : ON RÉAFFICHE (IMPORTANT) ---
-  // Si on ne fait pas ça, le tableau restera caché quand on reviendra sur FA/AP
+  // --- CAS AUTRES SITES : ON RÉAFFICHE TOUT ---
   if (title) title.style.display = "block";
   if (table) table.style.display = "table";
-  if (container) container.style.display = "block"; // On réaffiche la boîte blanche
+  if (container) container.style.display = "block"; // On réaffiche la boîte
   
-  // --- LA LOGIQUE NORMALE CONTINUE ---
   var topPages = getTopPagesForSite(sheetName);
+  
   var isYear = period.length === 4;
   
   var filtered;
@@ -920,7 +922,6 @@ function updateTopPages(sheetName, period) {
   if (filtered.length === 0) {
     thead.innerHTML = "";
     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#888;">Aucune donnée Top Pages pour cette période</td></tr>';
-    
     var periodLabel = isYear ? ('Année ' + period) : formatMonthYear(period);
     if (title) title.textContent = '🏆 Top 10 des pages les plus consultées – ' + periodLabel;
     return;

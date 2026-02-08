@@ -209,7 +209,7 @@ body.dark .kpi-value {
 /* ============ CHARTS ============ */
 .charts-grid {
   display: grid;
-  /* Modifié: Augmentation de minmax(400px -> 500px) pour élargir les boites côte à côte */
+  /* Modifié: Augmentation de minmax(400px -> 500px) */
   grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
   gap: 1.5rem;
   margin-bottom: 1.5rem;
@@ -220,13 +220,12 @@ body.dark .kpi-value {
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  /* AJOUT : Hauteur fixe importante pour que les camemberts soient grands */
+  /* AJOUT : Hauteur fixe importante */
   height: 550px;
-  /* Permet de centrer le contenu si le canvas est plus petit */
   display: flex;
   flex-direction: column;
   justify-content: center;
-  position: relative; /* Nécessaire pour Chart.js responsive */
+  position: relative;
 }
 
 body.dark .chart-container {
@@ -235,12 +234,10 @@ body.dark .chart-container {
 
 .chart-full {
   grid-column: 1 / -1;
-  /* AJOUT : Hauteur TRES grande pour Évolution et Comparaison (x3 environ) */
-  /* L'utilisation de !important assure que cette règle écrase la hauteur de 550px ci-dessus */
+  /* AJOUT : Hauteur TRES grande pour Évolution et Comparaison */
   height: 850px !important;
 }
 
-/* S'assurer que le canvas remplisse bien le conteneur agrandi */
 .chart-container canvas {
   max-width: 100% !important;
   max-height: 100% !important;
@@ -594,4 +591,3 @@ body.dark .refresh-btn:hover {
     max-width: 200px;
   }
 }
-

@@ -25,12 +25,11 @@ const SITE_CODES_REVERSE = {
   "Data RR": "RR"
 };
 
-// --- CONFIGURATION DES LOGOS ---
-// Chemins vers vos fichiers images
-const SITE_LOGOS = {
-  "Data FA": "img/logo-fa.png",
-  "Data AP": "img/logo-ap.png",
-  "Data RR": "img/logo-rr.png"
+// --- CONFIGURATION DES LOGOS (URL + Hauteur spécifique) ---
+const SITE_CONFIG = {
+  "Data FA": { url: "img/logo-fa.png", height: "34px" },
+  "Data AP": { url: "img/logo-ap.png", height: "50px" },
+  "Data RR": { url: "img/logo-rr.png", height: "45px" }
 };
 
 // --- DÉFINITION DES PALETTES DE COULEURS ---
@@ -405,15 +404,17 @@ function updatePrintTitle(sheetName, periodValue) {
   // 2. Span titre
   var printPeriod = document.getElementById("print-period");
   if (printPeriod) {
-    // Structure: Reporting - Période
     printPeriod.textContent = ' — ' + periodLabel;
   }
 
-  // 3. Mise à jour du LOGO
+  // 3. Mise à jour du LOGO et de sa HAUTEUR
   var logoImg = document.getElementById("site-logo");
-  if (logoImg && SITE_LOGOS[sheetName]) {
-    logoImg.src = SITE_LOGOS[sheetName];
+  var config = SITE_CONFIG[sheetName];
+  
+  if (logoImg && config) {
+    logoImg.src = config.url;
     logoImg.alt = "Logo " + siteName;
+    logoImg.style.height = config.height; // Applique la hauteur spécifique
   }
 }
 

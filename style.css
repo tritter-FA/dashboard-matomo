@@ -37,13 +37,21 @@ h1 {
   font-size: 1.5rem;
 }
 
-/* Période dans le titre - masqué à l'écran */
+/* MODIFICATION ICI : On affiche le span tout le temps maintenant */
 #print-period {
-  display: none;
+  display: inline;       /* Rendu visible */
+  font-weight: 400;      /* Texte normal (pas gras) */
+  color: #666;           /* Couleur grise */
+  font-size: 0.9em;      /* Légèrement plus petit */
 }
 
 body.dark h1 {
   color: #fff;
+}
+
+/* Adaptation du span pour le mode sombre */
+body.dark #print-period {
+  color: #aaa;
 }
 
 .header-controls {
@@ -209,7 +217,6 @@ body.dark .kpi-value {
 /* ============ CHARTS ============ */
 .charts-grid {
   display: grid;
-  /* Modifié: Augmentation de minmax(400px -> 500px) */
   grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
   gap: 1.5rem;
   margin-bottom: 1.5rem;
@@ -220,7 +227,6 @@ body.dark .kpi-value {
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  /* AJOUT : Hauteur fixe importante */
   height: 550px;
   display: flex;
   flex-direction: column;
@@ -234,7 +240,6 @@ body.dark .chart-container {
 
 .chart-full {
   grid-column: 1 / -1;
-  /* AJOUT : Hauteur TRES grande pour Évolution et Comparaison */
   height: 850px !important;
 }
 
@@ -435,7 +440,7 @@ body.dark .refresh-btn:hover {
     font-size: 18px !important;
   }
   
-  /* Afficher la période dans le titre à l'impression */
+  /* Afficher la période dans le titre à l'impression (c'est déjà le cas par défaut maintenant) */
   #print-period {
     display: inline !important;
   }

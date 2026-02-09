@@ -31,25 +31,38 @@ header {
   gap: 1rem;
 }
 
+/* Conteneur Logo + Titre */
+.brand-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Style du Logo */
+.header-logo {
+  height: 55px; /* Ajustez la hauteur ici si nécessaire */
+  width: auto;
+  object-fit: contain;
+}
+
 h1 {
   color: #1a1a2e;
   margin: 0;
   font-size: 1.5rem;
+  line-height: 1.2;
 }
 
-/* MODIFICATION ICI : On affiche le span tout le temps maintenant */
 #print-period {
-  display: inline;       /* Rendu visible */
-  font-weight: 400;      /* Texte normal (pas gras) */
-  color: #666;           /* Couleur grise */
-  font-size: 0.9em;      /* Légèrement plus petit */
+  display: inline;
+  font-weight: 400;
+  color: #666;
+  font-size: 0.9em;
 }
 
 body.dark h1 {
   color: #fff;
 }
 
-/* Adaptation du span pour le mode sombre */
 body.dark #print-period {
   color: #aaa;
 }
@@ -421,7 +434,6 @@ body.dark .refresh-btn:hover {
     max-width: 100% !important;
   }
   
-  /* Masquer les éléments non imprimables */
   .toggle-dark,
   .export-btn,
   .refresh-btn,
@@ -430,7 +442,6 @@ body.dark .refresh-btn:hover {
     display: none !important;
   }
   
-  /* Header avec titre dynamique */
   header {
     margin-bottom: 10px !important;
     page-break-after: avoid;
@@ -440,19 +451,16 @@ body.dark .refresh-btn:hover {
     font-size: 18px !important;
   }
   
-  /* Afficher la période dans le titre à l'impression (c'est déjà le cas par défaut maintenant) */
   #print-period {
     display: inline !important;
   }
   
-  /* Section titles */
   .section-title {
     font-size: 14px !important;
     margin: 10px 0 8px !important;
     page-break-after: avoid;
   }
   
-  /* ===== PAGE 1 : KPIs + Graphiques camemberts ===== */
   .kpis-grid {
     display: grid !important;
     grid-template-columns: repeat(6, 1fr) !important;
@@ -484,7 +492,6 @@ body.dark .refresh-btn:hover {
     font-size: 9px !important;
   }
   
-  /* Graphiques camemberts côte à côte sur page 1 */
   .charts-grid {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -504,12 +511,10 @@ body.dark .refresh-btn:hover {
     max-height: 250px !important;
   }
   
-  /* Forcer le saut de page après les camemberts (avant Top Pages) */
   #section-repartition + .charts-grid {
     page-break-after: always;
   }
   
-  /* ===== PAGE 2 : Top Pages ===== */
   #section-top-pages {
     page-break-before: always;
   }
@@ -543,28 +548,23 @@ body.dark .refresh-btn:hover {
     max-width: 350px !important;
   }
   
-  /* ===== PAGE 3 : Évolution ===== */
   .chart-full {
     grid-column: 1 / -1 !important;
     max-height: 400px !important;
   }
   
-  /* Le graphique évolution prend toute la page */
   #evolutionChart {
     max-height: 380px !important;
   }
   
-  /* Saut de page après évolution */
   .chart-full:has(#evolutionChart) {
     page-break-after: always;
   }
   
-  /* Fallback pour navigateurs sans :has() */
   #dashboard-content > .charts-grid:nth-of-type(2) {
     page-break-after: always;
   }
   
-  /* ===== PAGE 4 : Comparaison (annuel uniquement) ===== */
   #comparison-section {
     page-break-before: always;
   }
@@ -579,7 +579,6 @@ body.dark .refresh-btn:hover {
     width: 100% !important;
   }
   
-  /* Éviter les coupures de page à l'intérieur des éléments */
   .chart-container,
   .kpi-card {
     page-break-inside: avoid;

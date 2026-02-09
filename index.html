@@ -11,7 +11,11 @@
 <body>
   <div class="container">
     <header>
-      <h1>📊 Reporting Sites - Tableau de bord <span id="print-period"></span></h1>
+      <div class="brand-container">
+        <img id="site-logo" src="" alt="Logo" class="header-logo">
+        <h1>Reporting <span id="print-period"></span></h1>
+      </div>
+
       <div class="header-controls">
         <button class="refresh-btn" onclick="refreshData()" title="Forcer le rechargement des données">🔄</button>
         <button class="export-btn" onclick="exportPDF()">📄 Export PDF</button>
@@ -67,7 +71,7 @@
           <table id="devices-data-table">
             <thead>
               <tr>
-                <th>Device</th>
+                <th>Périphérique</th>
                 <th class="numeric">Visites</th>
                 <th class="numeric">%</th>
               </tr>

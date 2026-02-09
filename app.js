@@ -25,6 +25,14 @@ const SITE_CODES_REVERSE = {
   "Data RR": "RR"
 };
 
+// --- CONFIGURATION DES LOGOS ---
+// Chemins vers vos fichiers images
+const SITE_LOGOS = {
+  "Data FA": "img/logo-fa.png",
+  "Data AP": "img/logo-ap.png",
+  "Data RR": "img/logo-rr.png"
+};
+
 // --- DÉFINITION DES PALETTES DE COULEURS ---
 
 // 1. France Assureurs (FA)
@@ -33,9 +41,9 @@ const COULEURS_FA = ["#FA5629", "#007770", "#4984A9", "#68B0AC", "#FFB347", "#77
 // 2. Assurance Prévention (AP)
 const COULEURS_AP = ["#fdc300", "#005da4", "#00a3bb", "#0587b5", "#f07d19", "#292e6b"];
 
-// 3. Revue Risques (RR) - NOUVELLE PALETTE
+// 3. Revue Risques (RR)
 const COULEURS_RR = [
-  "#302F58", // 1 - Bleu nuit (Dark Navy)
+  "#302F58", // 1 - Bleu nuit
   "#413A74", // 2 - Indigo
   "#A35BA1", // 3 - Violet Orchidée
   "#EC74A9", // 4 - Rose vif
@@ -63,8 +71,8 @@ const PALETTES = {
     primary: COULEURS_RR,
     secondary: COULEURS_RR.map(c => c + "CC"),
     tertiary: COULEURS_RR.map(c => c + "99"),
-    accent: "#A35BA1", // J'utilise le Violet (couleur 3) comme accent car le bleu nuit est très sombre
-    dark: "#302F58"    // Le bleu nuit pour le mode sombre
+    accent: "#A35BA1", 
+    dark: "#302F58"
   }
 };
 
@@ -94,16 +102,13 @@ function getEvolutionColors(sheetName) {
 function getComparisonColors(sheetName) {
   const p = PALETTES[sheetName] || PALETTES["Data FA"];
   
-  // MODIFICATION DEMANDÉE :
-  // Pour Revue Risques, on utilise Couleur 1 vs Couleur 3
   if (sheetName === "Data RR") {
     return {
-      current: p.primary[0], // #302F58 (Bleu Nuit)
-      previous: p.primary[2] // #A35BA1 (Violet) - Plus de contraste
+      current: p.primary[0], // Bleu Nuit
+      previous: p.primary[2] // Violet
     };
   }
 
-  // Pour les autres (FA / AP), comportement par défaut (Couleur 1 vs Couleur 2)
   return {
     current: p.primary[0],
     previous: p.primary[1]
@@ -394,11 +399,21 @@ function updatePrintTitle(sheetName, periodValue) {
     }
   }
   
-  document.title = 'Reporting Sites - Tableau de bord - ' + siteName;
+  // 1. Titre navigateur
+  document.title = 'Reporting - ' + siteName;
   
+  // 2. Span titre
   var printPeriod = document.getElementById("print-period");
   if (printPeriod) {
-    printPeriod.textContent = ' — ' + siteName + ' — ' + periodLabel;
+    // Structure: Reporting - Période
+    printPeriod.textContent = ' — ' + periodLabel;
+  }
+
+  // 3. Mise à jour du LOGO
+  var logoImg = document.getElementById("site-logo");
+  if (logoImg && SITE_LOGOS[sheetName]) {
+    logoImg.src = SITE_LOGOS[sheetName];
+    logoImg.alt = "Logo " + siteName;
   }
 }
 

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reporting Sites - Tableau de bord</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-left">
+        <img id="site-logo" src="" alt="Logo" class="header-logo">
+      </div>
+      <div class="header-center">
+        <h1>Reporting <span id="print-period"></span></h1>
+      </div>
+      <div class="header-controls">
+        <button class="icon-btn" onclick="refreshData()" title="Rafraîchir les données">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
+        </button>
+        <button class="icon-btn" onclick="exportPDF()" title="Imprimer / Export PDF">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>
+        </button>
+        <button class="icon-btn toggle-dark" onclick="toggleDarkMode()" title="Passer au mode sombre">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>Site web</label>
+        <select id="site-select">
+          <option value="Data FA">France Assureurs</option>
+          <option value="Data AP">Assurance Prévention</option>
+          <option value="Data TF">— Nos Temps Forts</option>
+          <option value="Data RR">Revue Risques</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>Période</label>
+        <select id="period-select"></select>
+      </div>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      Chargement des données...
+    </div>
+
+    <div id="dashboard-content" style="display:none;">
+      
+      <div class="chart-container kpi-wrapper" id="container-kpis">
+        <h3 class="integrated-title" id="title-kpis"></h3>
+        <button class="chart-dl-btn" onclick="downloadElement('container-kpis')" title="Télécharger (.png)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        </button>
+        <div class="kpis-grid" id="kpis-grid"></div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-container" id="container-sources">
+          <h3 class="integrated-title" id="title-sources"></h3>
+          <button class="chart-dl-btn" onclick="downloadElement('container-sources')" title="Télécharger (.png)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          </button>
+          
+          <div class="doughnut-layout">
+            <div class="doughnut-wrapper">
+              <canvas id="sourcesChart"></canvas>
+              <div class="doughnut-center" id="sources-center"></div>
+            </div>
+            <div class="doughnut-legend" id="sources-legend"></div>
+          </div>
+        </div>
+
+        <div class="chart-container" id="container-devices">
+          <h3 class="integrated-title" id="title-devices"></h3>
+          <button class="chart-dl-btn" onclick="downloadElement('container-devices')" title="Télécharger (.png)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          </button>
+          
+          <div class="devices-cards-container" id="devices-cards">
+            </div>
+        </div>
+      </div>
+
+      <div id="top-pages-block">
+        <div class="chart-container table-container relative-container" id="container-top-pages">
+          <h3 class="integrated-title" id="title-top-pages"></h3>
+          <button class="chart-dl-btn" onclick="downloadElement('container-top-pages')" title="Télécharger (.png)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          </button>
+          <div class="table-responsive">
+            <table id="top-pages-table" class="top-pages-table">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-container chart-full" id="container-evolution">
+          <h3 class="integrated-title" id="title-evolution"></h3>
+          <button class="chart-dl-btn" onclick="downloadElement('container-evolution')" title="Télécharger (.png)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          </button>
+          <div class="canvas-wrapper full-size">
+            <canvas id="evolutionChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div id="comparison-section" style="display:none;">
+        <div class="charts-grid">
+          <div class="chart-container chart-full" id="container-comparison">
+            <h3 class="integrated-title" id="title-comparison"></h3>
+            <button class="chart-dl-btn" onclick="downloadElement('container-comparison')" title="Télécharger (.png)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            </button>
+            <div class="canvas-wrapper full-size">
+              <canvas id="comparisonChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
